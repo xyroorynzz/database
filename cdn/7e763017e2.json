@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "785095031714",
+    "project_id": "rikev-6a816",
+    "storage_bucket": "rikev-6a816.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:785095031714:android:b39c2d30f350eef0e410fb",
+        "android_client_info": {
+          "package_name": "com.kevstore.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBqq7PyCipVkep7AAjuYFwsoMYajAJFPd0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
