@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Tripweb Apps</title>
+<link rel="icon" type="image/png" href="https://tripweb.page.gd/library/weblogo.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+html{font-size:16px}
+*{-webkit-text-size-adjust:100%;text-size-adjust:100%;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#1e1e1e;color:#fff;margin:0;padding:0}
+header{background:#2a2a2a;border-bottom:1px solid #3d3d3d;color:#ffcc00;text-align:center;font-weight:600;padding:18px 0;position:sticky;top:0;z-index:1000;font-size:1.3rem}
+.container{max-width:720px;margin:30px auto;padding:0 15px;display:grid;gap:20px;grid-template-columns:1fr;}
+.app{background:#2a2a2a;border:1px solid #3d3d3d;border-radius:12px;padding:16px;font-size:.9rem;position:relative;overflow:hidden}
+.app:hover{border-color:#ffcc00}
+.app-header{display:flex;justify-content:space-between;align-items:flex-start}
+.app-title-wrap{display:flex;align-items:center;gap:8px;flex:1}
+.app-title{font-size:1.1rem;font-weight:600;color:#fff}
+.app-desc{font-size:.8rem;color:#bbb;margin:6px 0;line-height:1.4}
+.app-badge{font-size:.65rem;font-weight:600;padding:2px 6px;border-radius:4px;border:none;background:transparent;color:#fff}
+.app-badge.tripweb{background:#ffcc00;color:#111}
+.arrow-btn{background:none;border:none;color:#ffcc00;font-size:1.5rem;cursor:pointer;transition:transform .3s ease}
+.arrow-btn.open{transform:rotate(180deg)}
+.arrow-btn:active{transform:scale(.9);transition:.1s}
+.expand-area{max-height:0;overflow:hidden;transition:max-height .4s ease, padding .4s ease;padding:0 4px}
+.expand-area.show{max-height:500px;padding:10px 4px 4px}
+.sub-app{background:#222;border:1px solid #444;border-radius:8px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.sub-line{display:flex;align-items:center;gap:8px;flex:1 1 140px}
+.sub-name{color:#fff;font-size:.85rem}
+.sub-type{color:#bbb;font-size:.75rem}
+.badge{font-size:.65rem;font-weight:600;padding:2px 6px;border-radius:4px;border:none;background:transparent;color:#fff}
+.badge.new{background:#42d100;color:#fff}
+.badge.fixed{background:#92d100;color:#fff}
+.badge.beta{background:#e6750b;color:#fff}
+.badge.broken{background:#bf0000;color:#fff}
+.use-btn{background:#ffcc00;color:#111;border:none;border-radius:6px;padding:6px 18px;font-size:.75rem;font-weight:600;cursor:pointer;transition:background .2s, transform .1s}
+.use-btn:hover{background:#ffd93d}
+.use-btn:active{transform:scale(.95)}
+
+/* additional small controls */
+.label-small{font-size:.85rem;color:#ffcc00;margin:8px 0 4px}
+.textarea, .result {
+  width:100%;
+  min-height:120px;
+  resize:vertical;
+  border-radius:8px;
+  border:1px solid #3d3d3d;
+  background:#131313;
+  color:#fff;
+  padding:10px;
+  font-size:0.95rem;
+}
+.controls {display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.btn {background:#ffcc00;color:#111;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+.btn:active{transform:scale(.98)}
+.small {font-size:0.85rem;padding:6px 10px}
+.note {font-size:0.8rem;color:#999;margin-top:6px}
+</style>
+</head>
+<body>
+<header>Tripweb Apps</header>
+
+<div class="container">
+  <div class="app">
+    <div class="app-header">
+      <div class="app-title-wrap">
+        <div class="app-title">base64 encode menu</div>
+      </div>
+    </div>
+
+    <div class="app-desc">Enter text below, Base64 results will appear in real-time.</div>
+
+    <div class="label-small">Input text</div>
+    <textarea id="inputText" class="textarea" placeholder="Type text here..."></textarea>
+
+    <div class="label-small">Result (Base64)</div>
+    <textarea id="resultText" class="result" readonly placeholder="The results will appear here..."></textarea>
+
+    <div class="controls">
+      <button class="btn small" id="copyBtn">Copy</button>
+      <button class="btn small" id="clearBtn">Clear</button>
+    </div>
+
+    <div class="note"></div>
+  </div>
+</div>
+
+<script>
+/* safe Base64 for UTF-8 */
+function utf8ToBase64(str){
+  try{
+    return btoa(unescape(encodeURIComponent(str)));
+  }catch(e){
+    return '';
+  }
+}
+
+const input = document.getElementById('inputText');
+const result = document.getElementById('resultText');
+const copyBtn = document.getElementById('copyBtn');
+const clearBtn = document.getElementById('clearBtn');
+
+function update(){
+  const v = input.value || '';
+  result.value = utf8ToBase64(v);
+}
+
+// realtime
+input.addEventListener('input', update);
+
+// copy
+copyBtn.addEventListener('click', async () => {
+  try{
+    await navigator.clipboard.writeText(result.value);
+    copyBtn.textContent = 'Copied';
+    setTimeout(()=>copyBtn.textContent='Copy',1000);
+  }catch(e){
+    // fallback
+    result.select();
+    document.execCommand('copy');
+    copyBtn.textContent = 'Copied';
+    setTimeout(()=>copyBtn.textContent='Copy',1000);
+  }
+});
+
+// clear
+clearBtn.addEventListener('click', () => {
+  input.value = '';
+  update();
+  input.focus();
+});
+
+// init
+update();
+</script>
+</body>
+</html>
