@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>K2 ULTIMATE DASHBOARD - X TKRO 5</title>
+    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #000000;
+            --surface: #0a0a0a;
+            --card: #121212;
+            --accent: #ffcc00; 
+            --text: #ffffff;
+            --sub: #888888;
+            --border: rgba(255, 255, 255, 0.08);
+            --glow: rgba(255, 204, 0, 0.2);
+            --glass: rgba(255, 255, 255, 0.04);
+        }
+
+        /* --- GLOBAL STYLE --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); overflow-x: hidden; padding-bottom: 120px; line-height: 1.5; }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+        /* --- VIDEO LOADING SCREEN (16:9 - MODERATE) --- */
+        #loader { 
+            position: fixed; inset: 0; background: #000; z-index: 10000; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            transition: opacity 0.8s ease;
+        }
+        .loader-video-container {
+            width: 90%; max-width: 480px; 
+            aspect-ratio: 16/9; border-radius: 25px;
+            overflow: hidden; border: 1.5px solid var(--accent);
+            box-shadow: 0 0 35px rgba(255, 204, 0, 0.2);
+        }
+        .loader-video-container video { width: 100%; height: 100%; object-fit: cover; }
+        .loader-text {
+            margin-top: 25px; color: var(--accent); font-weight: 800; 
+            font-size: 0.75rem; letter-spacing: 4px; text-transform: uppercase;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* --- ALERT SYSTEM --- */
+        #custom-alert {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+            z-index: 99999; display: none; align-items: center; justify-content: center;
+            backdrop-filter: blur(15px); opacity: 0; transition: 0.4s ease;
+        }
+        .alert-modal {
+            background: var(--card); width: 85%; max-width: 380px;
+            border-radius: 35px; border: 1px solid var(--accent);
+            padding: 40px 25px; text-align: center; transform: scale(0.8); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 40px rgba(255, 204, 0, 0.2);
+        }
+        #custom-alert.active { display: flex; opacity: 1; }
+        #custom-alert.active .alert-modal { transform: scale(1); }
+        .alert-icon { font-size: 3.5rem; color: var(--accent); margin-bottom: 15px; }
+        .alert-title { font-weight: 800; font-size: 1.2rem; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; }
+        .alert-text { font-size: 0.95rem; color: #ccc; margin-bottom: 30px; white-space: pre-line; }
+        .alert-btn { background: var(--accent); color: #000; border: none; padding: 15px 50px; border-radius: 20px; font-weight: 800; cursor: pointer; }
+
+        /* --- HEADER --- */
+        header { position: fixed; top: 0; width: 100%; padding: 30px 25px; display: flex; justify-content: space-between; align-items: flex-start; z-index: 100; background: linear-gradient(to bottom, #000, transparent); }
+        .clock-box h2 { font-size: 2.2rem; color: var(--accent); font-weight: 800; }
+        .clock-box p { font-size: 0.75rem; color: var(--sub); font-weight: 700; text-transform: uppercase; }
+        .weather-info { background: var(--glass); padding: 12px 18px; border-radius: 20px; border: 1px solid var(--border); color: var(--accent); font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(15px); }
+
+        /* --- SIDEBAR --- */
+        .menu-btn { width: 56px; height: 56px; background: rgba(255,255,255,0.05); border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; cursor: pointer; position: fixed; right: 25px; top: 120px; z-index: 1001; border: 1px solid var(--border); backdrop-filter: blur(10px); }
+        .menu-btn span { width: 24px; height: 2.5px; background: #fff; border-radius: 5px; }
+
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1002; display: none; backdrop-filter: blur(10px); opacity: 0; transition: 0.4s; }
+        .sidebar { 
+            position: fixed; right: -100%; top: 0; width: 85%; max-width: 320px; height: 100%; 
+            background: #0d0d0d; z-index: 1003; transition: 0.6s cubic-bezier(0.8, 0, 0.2, 1); 
+            padding: 40px 20px; border-left: 1px solid var(--border); overflow-y: auto; padding-bottom: 150px;
+        }
+        .sidebar.active { right: 0; }
+        
+        .side-card { background: var(--card); border-radius: 22px; padding: 18px; display: flex; align-items: center; gap: 15px; margin-bottom: 12px; border: 1px solid var(--border); cursor: pointer; }
+        .side-card i.main { background: var(--accent); color: #000; padding: 10px; border-radius: 12px; font-size: 1.2rem; }
+        
+        .group-label { color: var(--accent); font-size: 0.75rem; font-weight: 800; margin: 30px 0 12px 5px; letter-spacing: 2px; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+        .group-label::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+        
+        .soc-link { background: var(--card); border-radius: 50px; padding: 15px 22px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; text-decoration: none; border: 1px solid var(--border); }
+        .soc-link div { display: flex; align-items: center; gap: 12px; color: #fff; font-weight: 700; font-size: 0.9rem; }
+
+        /* --- MAIN CONTENT --- */
+        .container { padding: 170px 25px 50px; max-width: 650px; margin: 0 auto; }
+        .section-tag { color: var(--accent); font-size: 0.7rem; font-weight: 800; margin-bottom: 20px; letter-spacing: 2px; display: flex; align-items: center; gap: 10px; text-transform: uppercase; }
+        .section-tag::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+        .vid-box { width: 100%; aspect-ratio: 16/9; background: #111; border-radius: 28px; overflow: hidden; margin-bottom: 45px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .portrait-frame { position: relative; width: 75%; max-width: 270px; margin: 0 auto 50px; aspect-ratio: 9/16; border-radius: 40px; border: 4px solid var(--glass); overflow: hidden; }
+        .mute-btn { position: absolute; bottom: 15px; right: 15px; width: 50px; height: 50px; background: rgba(0,0,0,0.7); border: 1px solid var(--accent); color: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(10px); z-index: 10; }
+
+        .pj-toggle { width: 100%; padding: 22px; background: var(--card); border-radius: 22px; border: 1px solid var(--border); color: #fff; font-weight: 800; display: flex; justify-content: space-between; align-items: center; cursor: pointer; margin-bottom: 35px; }
+        .tgl-ico { width: 38px; height: 38px; background: var(--accent); color: #000; border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: 0.5s; }
+        .pj-toggle.active .tgl-ico { transform: rotate(180deg); background: #fff; }
+        #pj-area { display: none; opacity: 0; transform: translateY(25px); transition: 0.6s ease; }
+        #pj-area.visible { display: block; opacity: 1; transform: translateY(0); }
+
+        video { width: 100%; height: 100%; object-fit: cover; }
+
+        /* --- MODAL SYSTEM --- */
+        .modal-view { position: fixed; inset: 0; background: var(--bg); z-index: 2000; transform: translateY(100%); transition: 0.6s cubic-bezier(0.85, 0, 0.15, 1); display: flex; flex-direction: column; }
+        .modal-view.active { transform: translateY(0); }
+        .modal-header { padding: 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        
+        #game-content { flex: 1; overflow-y: auto; padding: 25px; text-align: center; }
+        .badge { background: var(--glass); padding: 8px 15px; border-radius: 12px; border: 1px solid var(--accent); font-weight: 800; font-size: 0.75rem; color: var(--accent); }
+        .game-display { background: var(--card); border-radius: 25px; padding: 40px 20px; border: 1px solid var(--border); margin: 20px 0; font-size: 1.1rem; font-weight: 700; min-height: 150px; display: flex; align-items: center; justify-content: center; }
+        .inp-flat { width: 100%; background: #0f0f0f; border: 1px solid var(--border); padding: 18px; border-radius: 18px; color: #fff; text-align: center; margin-bottom: 15px; outline: none; }
+        .btn-flat { width: 100%; background: var(--accent); color: #000; border: none; padding: 18px; border-radius: 18px; font-weight: 800; cursor: pointer; }
+
+        /* --- NAVBAR --- */
+        .navbar { position: fixed; bottom: 0; width: 100%; height: 95px; background: rgba(5,5,5,0.95); backdrop-filter: blur(25px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding-bottom: 15px; }
+        .nav-link { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #555; text-decoration: none; font-size: 0.65rem; font-weight: 800; cursor: pointer; }
+        .nav-link.active { color: var(--accent); }
+        .nav-link i { font-size: 1.8rem; }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="loader-video-container">
+            <video autoplay muted playsinline id="loadingVid">
+                <source src="https://e.top4top.io/m_3695xp3al1.mp4" type="video/mp4">
+            </video>
+        </div>
+        <p class="loader-text">INITIALIZING K2 SYSTEM...</p>
+    </div>
+
+    <div id="custom-alert">
+        <div class="alert-modal">
+            <div class="alert-icon" id="a-ico"><i class="ph-fill ph-warning-circle"></i></div>
+            <div class="alert-title" id="a-tit">SYSTEM K2</div>
+            <div class="alert-text" id="a-txt">...</div>
+            <button class="alert-btn" onclick="closeAlert()">OKE</button>
+        </div>
+    </div>
+
+    <header>
+        <div class="clock-box"><h2 id="jam">00:00</h2><p id="tgl">Loading...</p></div>
+        <div class="weather-info"><i class="ph-fill ph-cloud-sun"></i><span id="suhu">Bandung ...°C</span></div>
+    </header>
+
+    <div class="menu-btn" onclick="toggleSidebar(true)"><span></span><span></span><span></span></div>
+
+    <div class="sidebar-overlay" id="sb-overlay" onclick="toggleSidebar(false)"></div>
+    <div class="sidebar" id="sb-menu">
+        <div class="side-card" onclick="openAlert('INFO KELOMPOK', 'X TKRO 5 - Kelompok 2\n\nAnggota:\n1. Fiqri\n2. Jenar\n3. Rai\n4. Sidiq')">
+            <i class="ph-fill ph-info main"></i><span>Informasi Kelompok</span>
+        </div>
+        <div class="side-card" onclick="openAlert('DEVELOPER', 'Designed by:\nRAI MIFTAHURRAHMAN\nUltimate Dashboard V7.0')">
+            <i class="ph-fill ph-fingerprint main"></i><span>Informasi Pembuat</span>
+        </div>
+
+        <div class="group-label">GAME CENTER</div>
+        <div class="soc-link" onclick="loadGame('asahotak')">
+            <div><i class="ph-fill ph-brain" style="color:#ff5e5e; font-size:1.5rem;"></i> Game Asah Otak</div>
+            <i class="ph ph-caret-right"></i>
+        </div>
+        <div class="soc-link" onclick="loadGame('tebaktebakan')">
+            <div><i class="ph-fill ph-mask-happy" style="color:#5efaff; font-size:1.5rem;"></i> Game Tebak Kata</div>
+            <i class="ph ph-caret-right"></i>
+        </div>
+
+        <div class="group-label">SOCIAL MEDIA</div>
+        <a href="https://wa.me/6285189712417" class="soc-link">
+            <div><i class="ph-fill ph-whatsapp-logo" style="color:#25D366; font-size:1.5rem;"></i> WhatsApp Rai</div>
+        </a>
+        <div class="soc-link" onclick="toggleSidebar(false); openModal('tiktok-modal')">
+            <div><i class="ph-fill ph-tiktok-logo" style="color:#fff; font-size:1.5rem;"></i> TikTok Page</div>
+            <i class="ph ph-caret-right"></i>
+        </div>
+        <a href="https://www.instagram.com/reel/DUo7phaE-Qz/?igsh=MWNoYTdrZDA2cnI2cQ==" class="soc-link">
+            <div><i class="ph-fill ph-instagram-logo" style="color:#E1306C; font-size:1.5rem;"></i> Instagram K2</div>
+            <i class="ph ph-caret-right"></i>
+        </a>
+    </div>
+
+    <div class="container">
+        <div class="section-tag">WELCOME VIDEO</div>
+        <div class="vid-box">
+            <video autoplay muted loop playsinline><source src="https://a.top4top.io/m_36949i7pi1.mp4" type="video/mp4"></video>
+        </div>
+
+        <div class="section-tag" style="justify-content:center;">ARCHIVE PORTRAIT</div>
+        <div class="portrait-frame">
+            <video id="pVid" autoplay muted loop playsinline><source src="https://k.top4top.io/m_3694dl9fr1.mp4" type="video/mp4"></video>
+            <div class="mute-btn" onclick="toggleMute('pVid', 'mIco')"><i id="mIco" class="ph-fill ph-speaker-slash"></i></div>
+        </div>
+
+        <div class="pj-toggle" id="pj-btn" onclick="handlePjToggle()">
+            <div style="display:flex; align-items:center; gap:15px;">
+                <div class="tgl-ico"><i class="ph-bold ph-caret-down"></i></div>
+                <span id="pj-text">TAMPILKAN TUGAS UTAMA</span>
+            </div>
+        </div>
+
+        <div id="pj-area">
+            <div class="section-tag">MAIN PROJECT VIDEO</div>
+            <div class="vid-box" style="border: 2px solid var(--accent);"><video controls playsinline><source src="https://b.top4top.io/m_3694sym5s1.mp4" type="video/mp4"></video></div>
+        </div>
+    </div>
+
+    <div id="game-modal" class="modal-view">
+        <div class="modal-header">
+            <h3><i class="ph-fill ph-game-controller"></i> K2 GAME HUB</h3>
+            <i class="ph ph-x" style="font-size:2rem;" onclick="closeModal('game-modal')"></i>
+        </div>
+        <div id="game-content">
+            <div class="score-row" style="display:flex; justify-content:center; gap:15px; margin-bottom:20px;">
+                <div class="badge">SCORE: <span id="game-score">0</span></div>
+            </div>
+            <div class="game-display" id="soal-box">Pilih game di Sidebar!</div>
+            <input type="text" id="game-input" class="inp-flat" placeholder="Ketik jawaban...">
+            <button class="btn-flat" onclick="checkGame()">JAWAB</button>
+        </div>
+    </div>
+
+    <div id="tiktok-modal" class="modal-view">
+        <div class="modal-header">
+            <h3><i class="ph-fill ph-tiktok-logo"></i> TIKTOK CONTENT</h3>
+            <i class="ph ph-x" style="font-size:2rem;" onclick="closeModal('tiktok-modal')"></i>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
+            <div class="portrait-frame" style="margin-bottom:20px;">
+                <video id="tVid" loop playsinline><source src="https://c.top4top.io/m_3695fhnvd1.mp4" type="video/mp4"></video>
+                <div class="mute-btn" onclick="toggleMute('tVid', 'tIco')"><i id="tIco" class="ph-fill ph-speaker-high"></i></div>
+            </div>
+            <button class="btn-flat" style="width:75%;" onclick="document.getElementById('tVid').play()">PLAY VIDEO</button>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-link" onclick="openModal('tiktok-modal')"><i class="ph-fill ph-tiktok-logo"></i><span>TIKTOK</span></div>
+        <div class="nav-link" onclick="openAlert('AI CHAT', 'Sistem AI sedang pemeliharaan.')"><i class="ph-fill ph-cpu"></i><span>AI CHAT</span></div>
+        <div class="nav-link active" onclick="location.reload()"><i class="ph-fill ph-house"></i><span>HOME</span></div>
+        <div class="nav-link" onclick="openModal('game-modal')"><i class="ph-fill ph-game-controller"></i><span>GAMES</span></div>
+        <a href="https://www.instagram.com/reel/DUo7phaE-Qz/?igsh=MWNoYTdrZDA2cnI2cQ==" class="nav-link">
+            <i class="ph-fill ph-instagram-logo"></i><span>INSTA</span>
+        </a>
+    </nav>
+
+    <script>
+        let correctAns = "";
+        let score = 0;
+        let activeGameType = "";
+
+        // Loader Control
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 800);
+            }, 3500);
+        });
+
+        function openAlert(t, txt, icon='ph-fill ph-warning-circle') {
+            document.getElementById('a-tit').innerText = t;
+            document.getElementById('a-txt').innerText = txt;
+            document.getElementById('a-ico').innerHTML = `<i class="${icon}"></i>`;
+            const a = document.getElementById('custom-alert');
+            a.style.display = 'flex';
+            setTimeout(() => a.classList.add('active'), 10);
+        }
+
+        function closeAlert() {
+            const a = document.getElementById('custom-alert');
+            a.classList.remove('active');
+            setTimeout(() => a.style.display = 'none', 400);
+        }
+
+        function toggleSidebar(o) {
+            const s = document.getElementById('sb-menu');
+            const ov = document.getElementById('sb-overlay');
+            if(o) { s.classList.add('active'); ov.style.display='block'; setTimeout(()=>ov.style.opacity='1',10); }
+            else { s.classList.remove('active'); ov.style.opacity='0'; setTimeout(()=>ov.style.display='none',400); }
+        }
+
+        function toggleMute(vidId, icoId) {
+            const v = document.getElementById(vidId);
+            const i = document.getElementById(icoId);
+            v.muted = !v.muted;
+            i.className = v.muted ? "ph-fill ph-speaker-slash" : "ph-fill ph-speaker-high";
+        }
+
+        function handlePjToggle() {
+            const a = document.getElementById('pj-area');
+            const b = document.getElementById('pj-btn');
+            const t = document.getElementById('pj-text');
+            if(a.classList.contains('visible')) {
+                a.classList.remove('visible'); b.classList.remove('active');
+                t.innerText = "TAMPILKAN TUGAS UTAMA";
+                setTimeout(()=> a.style.display='none', 600);
+            } else {
+                a.style.display='block';
+                setTimeout(()=> { a.classList.add('visible'); b.classList.add('active'); t.innerText = "SEMBUNYIKAN TUGAS"; }, 10);
+            }
+        }
+
+        function openModal(id) { 
+            document.getElementById(id).classList.add('active');
+            if(id === 'tiktok-modal') {
+                const tv = document.getElementById('tVid');
+                tv.muted = false;
+                tv.play().catch(() => {});
+            }
+        }
+        function closeModal(id) { 
+            document.getElementById(id).classList.remove('active');
+            if(id === 'tiktok-modal') document.getElementById('tVid').pause();
+        }
+
+        async function loadGame(type) {
+            activeGameType = type;
+            toggleSidebar(false);
+            openModal('game-modal');
+            const box = document.getElementById('soal-box');
+            box.innerText = "MENCARI TANTANGAN...";
+            try {
+                const r = await fetch(`https://api-faa.my.id/faa/${type}`);
+                const d = await r.json();
+                box.innerText = d.result.soal || d.result.pertanyaan;
+                correctAns = (d.result.jawaban || d.result.answer).toLowerCase().trim();
+            } catch(e) { box.innerText = "Gagal memuat soal!"; }
+        }
+
+        function checkGame() {
+            const u = document.getElementById('game-input').value.toLowerCase().trim();
+            if(u === correctAns) {
+                score += 10;
+                document.getElementById('game-score').innerText = score;
+                openAlert("BENAR!", "+10 Skor untukmu!", "ph-fill ph-check-circle");
+                document.getElementById('game-input').value = "";
+                loadGame(activeGameType);
+            } else {
+                openAlert("SALAH!", "Coba lagi!");
+            }
+        }
+
+        setInterval(() => {
+            const n = new Date();
+            document.getElementById('jam').innerText = n.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+            document.getElementById('tgl').innerText = n.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long'});
+        }, 1000);
+
+        fetch('https://wttr.in/Bandung?format=%t').then(r => r.text()).then(t => {
+            document.getElementById('suhu').innerText = "Bandung " + t;
+        }).catch(() => document.getElementById('suhu').innerText = "Bandung 26°C");
+    </script>
+</body>
+</html>
