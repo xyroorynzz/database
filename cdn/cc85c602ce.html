@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Rayy Digital Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f0f2f8; font-family: 'Inter', sans-serif; padding: 1.5rem; color: #1e293b; }
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        /* Header */
+        .store-header { background: white; border-radius: 2rem; padding: 1.2rem 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .logo-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .logo-bulat { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0; }
+        .logo-panjang { max-height: 60px; max-width: 200px; object-fit: contain; }
+        .store-name { font-size: 1.6rem; font-weight: 700; background: linear-gradient(135deg, #1e4a3b, #2b6e4f); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        
+        .pinned-message { background: #fff9e8; border-left: 5px solid #f5b042; padding: 0.9rem 1rem; border-radius: 1rem; margin-bottom: 1.2rem; font-size: 0.9rem; }
+        .section-title { font-weight: 600; margin: 1.5rem 0 1rem; font-size: 1.3rem; display: flex; align-items: center; gap: 8px; border-left: 4px solid #2b6e4f; padding-left: 12px; }
+        
+        /* Produk Card dengan Thumbnail */
+        .produk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-bottom: 1.5rem; }
+        .produk-card { background: white; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: 0.2s; border: 1px solid #e9edf2; }
+        .produk-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .produk-thumb { width: 100%; height: 180px; object-fit: cover; background: #eef2ff; }
+        .produk-info { padding: 1rem; }
+        .produk-nama { font-weight: 700; font-size: 1.1rem; margin-bottom: 0.3rem; }
+        .produk-harga { color: #2b6e4f; font-weight: 700; font-size: 1.2rem; margin-bottom: 0.8rem; }
+        .produk-desc { font-size: 0.75rem; color: #7c8ba0; margin-bottom: 1rem; }
+        .btn-group-produk { display: flex; gap: 10px; }
+        .btn-qris { background: #0f3b2c; color: white; border: none; padding: 0.6rem 1rem; border-radius: 40px; font-size: 0.8rem; cursor: pointer; flex: 1; text-align: center; }
+        .btn-beli { background: #2b6e4f; color: white; border: none; padding: 0.6rem 1rem; border-radius: 40px; font-size: 0.8rem; cursor: pointer; flex: 1; text-align: center; }
+        
+        /* Video Grid - Auto Play */
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin: 1rem 0; }
+        .video-card { background: black; border-radius: 1rem; overflow: hidden; position: relative; }
+        .video-card video { width: 100%; height: auto; display: block; }
+        .video-label { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; }
+        
+        /* WA Selector */
+        .wa-selector { background: white; border-radius: 1.2rem; padding: 1rem; margin: 1rem 0; text-align: center; border: 1px solid #e2e8f0; }
+        .wa-option { display: inline-flex; gap: 15px; margin-top: 10px; flex-wrap: wrap; justify-content: center; }
+        .wa-btn { background: #25D366; color: white; padding: 0.6rem 1.2rem; border-radius: 40px; text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; cursor: pointer; border: none; }
+        .wa-btn.second { background: #128C7E; }
+        
+        /* Kontak */
+        .kontak-list { display: flex; flex-wrap: wrap; gap: 12px; margin: 1.2rem 0; }
+        .kontak-item { background: white; padding: 0.5rem 1.2rem; border-radius: 40px; text-decoration: none; color: #1f3b4c; display: inline-flex; align-items: center; gap: 8px; border: 1px solid #e2e8f0; }
+        .dana-item { background: #2b6e4f; color: white; border: none; }
+        .dana-item i { color: #fff; }
+        
+        .footer { text-align: center; font-size: 0.7rem; color: #7c8ba0; margin-top: 1.5rem; }
+        .toast-msg { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 10px 20px; border-radius: 60px; font-size: 0.8rem; z-index: 1000; display: none; }
+        
+        @media (max-width: 700px) { .produk-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="storeHeader"></div>
+    <div id="pinnedArea"></div>
+
+    <div class="wa-selector">
+        <i class="fab fa-whatsapp" style="color:#25D366;"></i> 
+        <strong>Pilih nomor admin untuk order / lapor transfer</strong>
+        <div class="wa-option">
+            <button id="waAdmin1Btn" class="wa-btn"><i class="fab fa-whatsapp"></i> Admin 1 (6285189712417)</button>
+            <button id="waAdmin2Btn" class="wa-btn second"><i class="fab fa-whatsapp"></i> Admin 2 (6285794545996)</button>
+        </div>
+    </div>
+
+    <div class="section-title"><i class="fas fa-tag"></i> Daftar Produk</div>
+    <div id="produkGrid" class="produk-grid"></div>
+
+    <div class="section-title"><i class="fas fa-video"></i> Video Preview (Auto Play)</div>
+    <div id="videoGrid" class="video-grid"></div>
+
+    <div class="section-title"><i class="fas fa-address-card"></i> Kontak & Pembayaran</div>
+    <div id="kontakArea" class="kontak-list"></div>
+    
+    <hr />
+    <div class="footer"><i class="fas fa-shield-alt"></i> Cara order: pilih produk → klik "Minta QRIS" atau "Lapor Transfer"<br>Pesan akan otomatis dikirim ke WhatsApp admin.</div>
+</div>
+<div id="toastMsg" class="toast-msg"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBUHSGJ2Yaet7ue1x8WLcHn6LI627SINqg",
+        authDomain: "rayy-digital-store.firebaseapp.com",
+        databaseURL: "https://rayy-digital-store-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "rayy-digital-store",
+        storageBucket: "rayy-digital-store.firebasestorage.app",
+        messagingSenderId: "537690791174",
+        appId: "1:537690791174:web:57a6d6d7a218a91f6e1287"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const WA_NOMOR_1 = "6285189712417";
+    const WA_NOMOR_2 = "6285794545996";
+    let selectedWaNumber = WA_NOMOR_1;
+
+    function showToast(msg, isError = false) {
+        const toast = document.getElementById('toastMsg');
+        toast.style.backgroundColor = isError ? '#b91c1c' : '#1f5e46';
+        toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-triangle' : 'check-circle'}"></i> ${msg}`;
+        toast.style.display = 'block';
+        setTimeout(() => toast.style.display = 'none', 3000);
+    }
+
+    document.getElementById('waAdmin1Btn').onclick = () => { selectedWaNumber = WA_NOMOR_1; showToast(`✅ Admin 1 (${WA_NOMOR_1}) dipilih`); };
+    document.getElementById('waAdmin2Btn').onclick = () => { selectedWaNumber = WA_NOMOR_2; showToast(`✅ Admin 2 (${WA_NOMOR_2}) dipilih`); };
+
+    function simpanTransaksi(produkNama, hargaText, tipe) {
+        const userId = "user_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4);
+        db.ref('transactions').push({
+            produk: produkNama, harga: hargaText, tipe: tipe, userId: userId, waktu: new Date().toISOString()
+        }).catch(err => console.log("Gagal simpan transaksi", err));
+    }
+
+    function sendWhatsApp(produkNama, hargaText, tipe) {
+        if (!selectedWaNumber) { showToast("Pilih admin dulu", true); return; }
+        let message = tipe === 'qris' 
+            ? `Halo bang, saya mau buy *${produkNama}* dengan harga *${hargaText}*. Tolong minta QRIS untuk pembayaran. Terima kasih.`
+            : `Halo bang, saya sudah transfer untuk produk *${produkNama}* dengan harga *${hargaText}*. Mohon dicek ya. Sertakan bukti TF. Terima kasih.`;
+        window.open(`https://wa.me/${selectedWaNumber}?text=${encodeURIComponent(message)}`, '_blank');
+        simpanTransaksi(produkNama, hargaText, tipe);
+        showToast(`📱 Pesan terkirim ke admin ${selectedWaNumber}`);
+    }
+
+    // ========== LOAD DATA ==========
+    // Store Info
+    const storeHeaderDiv = document.getElementById('storeHeader');
+    db.ref('storeInfo').on('value', (snap) => {
+        const data = snap.val() || {};
+        storeHeaderDiv.innerHTML = `
+            <div class="store-header">
+                <div class="logo-row">
+                    <img src="${data.logoUrl || 'https://files.catbox.moe/5nlcg2.jpg'}" class="logo-bulat" onerror="this.src='https://placehold.co/70x70?text=Rayy'">
+                    ${data.logoPanjang ? `<img src="${data.logoPanjang}" class="logo-panjang" onerror="this.style.display='none'">` : ''}
+                    <span class="store-name">${escapeHtml(data.storeName || 'Rayy Digital Store')}</span>
+                </div>
+            </div>
+        `;
+        const pinnedDiv = document.getElementById('pinnedArea');
+        pinnedDiv.innerHTML = data.pinnedMessage ? `<div class="pinned-message"><i class="fas fa-thumbtack"></i> ${escapeHtml(data.pinnedMessage)}</div>` : '';
+    });
+
+    // Produk dengan Thumbnail per produk
+    const produkGrid = document.getElementById('produkGrid');
+    db.ref('produk').on('value', (snap) => {
+        const produkArr = snap.val() || [];
+        produkGrid.innerHTML = '';
+        if (produkArr.length === 0) { produkGrid.innerHTML = '<div style="background:#eef2ff; padding:20px; border-radius:1rem;">Belum ada produk.</div>'; return; }
+        produkArr.forEach(p => {
+            if (!p.nama || !p.harga) return;
+            const thumb = p.thumbnail || 'https://placehold.co/400x200?text=' + encodeURIComponent(p.nama.substring(0,20));
+            const card = document.createElement('div');
+            card.className = 'produk-card';
+            card.innerHTML = `
+                <img src="${escapeHtml(thumb)}" class="produk-thumb" onerror="this.src='https://placehold.co/400x200?text=Rayy'">
+                <div class="produk-info">
+                    <div class="produk-nama">${escapeHtml(p.nama)}</div>
+                    <div class="produk-harga">${escapeHtml(p.harga)}</div>
+                    <div class="produk-desc">${escapeHtml(p.desc || 'Klik tombol di bawah untuk order')}</div>
+                    <div class="btn-group-produk">
+                        <button class="btn-qris" data-nama="${escapeHtml(p.nama)}" data-harga="${escapeHtml(p.harga)}"><i class="fas fa-qrcode"></i> Minta QRIS</button>
+                        <button class="btn-beli" data-nama="${escapeHtml(p.nama)}" data-harga="${escapeHtml(p.harga)}"><i class="fas fa-upload"></i> Lapor Transfer</button>
+                    </div>
+                </div>
+            `;
+            produkGrid.appendChild(card);
+        });
+        document.querySelectorAll('.btn-qris').forEach(btn => btn.onclick = () => sendWhatsApp(btn.dataset.nama, btn.dataset.harga, 'qris'));
+        document.querySelectorAll('.btn-beli').forEach(btn => btn.onclick = () => sendWhatsApp(btn.dataset.nama, btn.dataset.harga, 'transfer'));
+    });
+
+    // Video Auto Play
+    const videoGrid = document.getElementById('videoGrid');
+    db.ref('media/videos').on('value', (snap) => {
+        const videos = snap.val() || [];
+        videoGrid.innerHTML = '';
+        videos.forEach((url, idx) => {
+            if (url && url.trim()) {
+                const videoDiv = document.createElement('div');
+                videoDiv.className = 'video-card';
+                videoDiv.innerHTML = `
+                    <video src="${url}" autoplay muted loop playsinline preload="auto"></video>
+                    <div class="video-label">Preview ${idx+1}</div>
+                `;
+                videoGrid.appendChild(videoDiv);
+            }
+        });
+        if (videos.length === 0) videoGrid.innerHTML = '<div style="background:#eef2ff; padding:20px; border-radius:1rem;">Belum ada video preview</div>';
+    });
+
+    // Kontak (termasuk DANA)
+    const kontakDiv = document.getElementById('kontakArea');
+    db.ref('kontak').on('value', (snap) => {
+        const kontakArr = snap.val() || [];
+        kontakDiv.innerHTML = '';
+        // Tambah DANA manual
+        const danaDiv = document.createElement('div');
+        danaDiv.className = 'kontak-item dana-item';
+        danaDiv.innerHTML = `<i class="fas fa-money-bill-wave"></i> DANA: 085794545996`;
+        kontakDiv.appendChild(danaDiv);
+        
+        kontakArr.forEach(k => {
+            if (!k.nomor) return;
+            let icon = '<i class="fas fa-phone"></i>';
+            let link = '#';
+            if (k.jenis?.toLowerCase().includes('wa')) { icon = '<i class="fab fa-whatsapp" style="color:#25D366;"></i>'; link = `https://wa.me/${k.nomor.replace(/[^0-9]/g, '')}`; }
+            else if (k.jenis?.toLowerCase().includes('tele')) { icon = '<i class="fab fa-telegram" style="color:#26A5E4;"></i>'; link = `https://t.me/${k.nomor.replace('@','')}`; }
+            const a = document.createElement('a'); a.className = 'kontak-item'; a.href = link; a.target = '_blank'; a.innerHTML = `${icon} ${escapeHtml(k.jenis || 'Kontak')}: ${escapeHtml(k.nomor)}`;
+            kontakDiv.appendChild(a);
+        });
+    });
+
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+</script>
+</body>
+</html>
